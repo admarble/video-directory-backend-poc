@@ -12,6 +12,7 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "seed-categories": "curl -X POST http://localhost:3001/api/seed || echo 'Server not running. Please start with: npm run dev'",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
@@ -25,6 +26,7 @@
     "@payloadcms/payload-cloud": "3.33.0",
     "@payloadcms/richtext-lexical": "3.33.0",
     "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
     "graphql": "^16.8.1",
     "mongodb": "^6.16.0",
     "next": "15.3.0",
@@ -43,6 +45,7 @@
     "eslint": "^9.16.0",
     "eslint-config-next": "15.3.0",
     "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
     "typescript": "5.7.3"
   },
   "engines": {

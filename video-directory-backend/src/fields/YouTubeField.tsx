@@ -12,6 +12,9 @@ interface YouTubeVideoData {
   thumbnailUrl: string;
   publishedDate: string;
   thumbnailId?: string | null;
+  tagIds?: string[];
+  creatorId?: string | null;
+  categoryIds?: string[];
 }
 
 interface YouTubeFieldProps {
@@ -106,12 +109,39 @@ const YouTubeField: React.FC<YouTubeFieldProps> = (props) => {
         value: new Date(videoData.publishedDate).toISOString(),
       });
       
+      // Update creator field if we have a creator
+      if (videoData.creatorId) {
+        dispatchFields({
+          type: 'UPDATE',
+          path: 'creator',
+          value: videoData.creatorId,
+        });
+      }
+      
+      // Update categories field if we have categories
+      if (videoData.categoryIds && videoData.categoryIds.length > 0) {
+        dispatchFields({
+          type: 'UPDATE',
+          path: 'categories',
+          value: videoData.categoryIds,
+        });
+      }
+      
       // Update thumbnail field if we uploaded one
       if (videoData.thumbnailId) {
         dispatchFields({
           type: 'UPDATE',
           path: 'thumbnail',
           value: videoData.thumbnailId,
+        });
+      }
+      
+      // Update tags field if we have tags
+      if (videoData.tagIds && videoData.tagIds.length > 0) {
+        dispatchFields({
+          type: 'UPDATE',
+          path: 'tags',
+          value: videoData.tagIds,
         });
       }
       
@@ -128,7 +158,7 @@ const YouTubeField: React.FC<YouTubeFieldProps> = (props) => {
     <div className="field-container">
       <div className="field-label">YouTube Data</div>
       <p style={{ fontSize: '14px', marginBottom: '10px', color: 'var(--theme-text-muted)' }}>
-        Enter a YouTube URL above, then click the button below to automatically fill in video details.
+        Enter a YouTube URL above, then click the button below to automatically fill in video details including creator, categories, and tags.
       </p>
       
       <div style={{ marginBottom: '10px' }}>
@@ -176,7 +206,7 @@ const YouTubeField: React.FC<YouTubeFieldProps> = (props) => {
           border: '1px solid var(--theme-success-200)',
           borderRadius: '4px'
         }}>
-          ✓ Video data fetched successfully! Fields have been updated.
+          ✓ Video data fetched successfully! Fields have been updated (including creator, categories, and tags if available).
         </div>
       )}
       
