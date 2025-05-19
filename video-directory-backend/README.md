@@ -1,67 +1,141 @@
-# Payload Blank Template
+# Video Directory Backend - Indie Hacker Edition
 
-This template comes configured with the bare minimum to get started on anything you need.
+A specialized video directory backend built with Payload CMS 3.33.0, tailored for indie hackers, developers, and entrepreneurs. Features intelligent category detection and automated content curation from YouTube.
 
-## Quick start
+## 🎯 Core Features
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+- **Smart YouTube Integration**: Automatically extracts and categorizes video content
+- **Specialized Categories**: 8 focused categories for indie hackers and developers
+- **Auto-Content Creation**: Automatically creates creators, categories, and tags
+- **Advanced Keyword Detection**: Over 100 specialized keywords for accurate categorization
+- **Thumbnail Management**: Optional automatic thumbnail downloading and storage
 
-## Quick Start - local setup
+## 🏗️ Core Categories
 
-To spin up this template locally, follow these steps:
+1. **Business Strategy** - Idea validation, business models, pricing strategies
+2. **AI & Automation** - AI tools, Cursor, Copilot, workflow automation
+3. **No-Code/Low-Code** - Supabase, Webflow, Zapier, visual builders
+4. **Marketing & Growth** - SEO, growth hacking, viral marketing
+5. **Web Development** - React, Next.js, full-stack development
+6. **SaaS Building** - Subscription models, user onboarding, SaaS metrics
+7. **Product Management** - UX/UI, user research, product roadmaps
+8. **Analytics & Data** - Tracking, KPIs, data-driven decisions
 
-### Clone
+## 🚀 Quick Start
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-### Development
+### 2. Environment Setup
+Create a `.env` file with:
+```env
+YOUTUBE_API_KEY=your-youtube-api-key
+DATABASE_URI=your-mongodb-uri
+PAYLOAD_SECRET=your-secret-key
+```
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URI` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+### 3. Seed Core Categories
+```bash
+npm run seed-categories
+```
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+### 4. Start Development Server
+```bash
+npm run dev
+```
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+Visit `http://localhost:3001/admin` to access the admin panel.
 
-#### Docker (Optional)
+## 📖 Usage
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+### Adding YouTube Videos
 
-To do so, follow these steps:
+1. Navigate to `Collections > Videos > Create New`
+2. Enter a YouTube URL in the "YouTube Video URL" field
+3. Click "Fetch YouTube Data" in the sidebar
+4. Watch as the form auto-populates with:
+   - Title and description
+   - Duration and publish date
+   - Automatically detected categories
+   - Creator information
+   - Relevant tags
+   - Optional thumbnail
 
-- Modify the `MONGODB_URI` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URI` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+### Category Detection
 
-## How it works
+The system intelligently categorizes content using:
+- YouTube's primary category mapping
+- Advanced keyword analysis of titles and descriptions
+- Fallback to "Web Development" if no categories detected
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+## 🛠️ Development
 
-### Collections
+### Scripts
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run test` - Run test suite
+- `npm run seed-categories` - Populate core categories
+- `npm run generate:types` - Generate TypeScript types
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+### Project Structure
+```
+src/
+├── collections/        # Payload collections (Videos, Categories, etc.)
+├── fields/            # Custom fields (YouTube integration)
+├── app/api/           # API routes
+├── scripts/           # Utility scripts
+└── globals/           # Global configurations
+```
 
-- #### Users (Authentication)
+## 🔧 Customization
 
-  Users are auth-enabled collections that have access to the admin panel.
+### Adding New Categories
+1. Update `CATEGORY_KEYWORDS` in `/src/app/api/youtube/route.ts`
+2. Run the seed script to add new categories
+3. Restart the development server
 
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/main/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+### Modifying Keyword Detection
+Edit the keyword arrays in `/src/app/api/youtube/route.ts` to improve categorization accuracy for your specific use cases.
 
-- #### Media
+## 📊 API Endpoints
 
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+- `GET /api/youtube?url={youtube-url}` - Fetch video metadata and categorize
+- Standard Payload CMS REST and GraphQL APIs for all collections
 
-### Docker
+## 🧪 Testing
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+The project includes comprehensive tests for:
+- YouTube URL parsing and validation
+- Category detection algorithms
+- API integration functionality
 
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+Run tests with: `npm test`
 
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+## 📚 Documentation
 
-## Questions
+- [YouTube Integration Guide](./YOUTUBE_INTEGRATION_GUIDE.md) - Detailed setup and usage
+- [Payload CMS Docs](https://payloadcms.com/docs) - Official Payload documentation
 
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📝 License
+
+MIT License - see LICENSE file for details
+
+## 🎉 What's Next?
+
+- [ ] Add subcategories for more granular organization
+- [ ] Implement learning paths connecting related videos
+- [ ] Add difficulty levels (Beginner, Intermediate, Advanced)
+- [ ] Create recommendation engine based on user preferences
+- [ ] Add community features like comments and ratings
+
+Built with ❤️ for the indie hacker community.

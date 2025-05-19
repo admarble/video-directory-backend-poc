@@ -6,7 +6,10 @@ export const Videos: CollectionConfig = {
     useAsTitle: 'title',
   },
   access: {
+    create: () => true,
     read: () => true,
+    update: () => true,
+    delete: () => true,
   },
   fields: [
     {
@@ -21,7 +24,7 @@ export const Videos: CollectionConfig = {
       admin: {
         position: 'sidebar',
         components: {
-          Field: '/src/fields/YouTubeField.tsx',
+          Field: 'src/fields/YouTubeField',
         },
       },
     },
