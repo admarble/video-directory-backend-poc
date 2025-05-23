@@ -6,10 +6,19 @@ export const Videos: CollectionConfig = {
     useAsTitle: 'title',
   },
   access: {
-    create: () => true,
-    read: () => true,
-    update: () => true,
-    delete: () => true,
+    // Allow authenticated users to create videos
+    create: ({ req: { user } }) => !!user,
+    // Allow public read access to published videos
+    read: ({ req: { user }, data }) => {
+      // If user is authenticated, allow access to all videos
+      if (user) return true
+      // For public access, only show published videos
+      return { published: { equals: true } }
+    },
+    // Only authenticated users can update videos
+    update: ({ req: { user } }) => !!user,
+    // Only authenticated users can delete videos
+    delete: ({ req: { user } }) => !!user,
   },
   fields: [
     {
@@ -81,6 +90,59 @@ export const Videos: CollectionConfig = {
           pickerAppearance: 'dayAndTime',
         },
       },
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      label: 'URL Slug',
+      admin: {
+        description: 'SEO-friendly URL slug (auto-generated from title if empty)',
+      },
+      hooks: {
+        beforeValidate: [
+          ({ data, operation }) => {
+            if (!data?.slug && data?.title) {
+              // Auto-generate slug from title
+              data.slug = data.title
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim()
+            }
+            return data
+          },
+        ],
+      },
+    },
+    {
+      name: 'isFeatured',
+      type: 'checkbox',
+      label: 'Featured Tutorial',
+      defaultValue: false,
+      admin: {
+        description: 'Mark as featured to show on homepage hero section',
+      },
+    },
+    {
+      name: 'views',
+      type: 'number',
+      label: 'View Count',
+      defaultValue: 0,
+      admin: {
+        description: 'Number of times this tutorial has been viewed',
+      },
+    },
+    {
+      name: 'skillLevel',
+      type: 'select',
+      label: 'Skill Level',
+      options: [
+        { label: 'Beginner', value: 'beginner' },
+        { label: 'Intermediate', value: 'intermediate' },
+        { label: 'Advanced', value: 'advanced' },
+      ],
+      defaultValue: 'beginner',
     },
   ],
   timestamps: true,

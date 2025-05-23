@@ -20,6 +20,23 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3001',
+  cors: [
+    'http://localhost:4321', // Frontend Astro server
+    'http://localhost:4322', // Alternative frontend port
+    'http://localhost:3000', // Alternative frontend port
+    'http://127.0.0.1:4321',
+    'http://127.0.0.1:4322',
+    'http://127.0.0.1:3000',
+  ],
+  csrf: [
+    'http://localhost:4321', // Frontend Astro server
+    'http://localhost:4322', // Alternative frontend port
+    'http://localhost:3000', // Alternative frontend port
+    'http://127.0.0.1:4321',
+    'http://127.0.0.1:4322',
+    'http://127.0.0.1:3000',
+  ],
   admin: {
     user: Users.slug,
     importMap: {
@@ -53,5 +70,7 @@ export default buildConfig({
       },
       secure: process.env.SMTP_SECURE === 'true',
     },
+    // Disable transport verification in development
+    skipVerify: process.env.NODE_ENV === 'development' || !process.env.SMTP_HOST || process.env.SMTP_HOST.includes('example.com'),
   }),
 })

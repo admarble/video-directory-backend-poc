@@ -1,11 +1,8 @@
-// Import Payload types to resolve Where type issue
 import type { Where } from 'payload';
-
 import { NextResponse } from 'next/server'
-import { getPayloadClient } from '../../../getPayload'
+import { getPayloadClient } from '../../../../getPayload'
+import { transformVideos } from '../../../../utils/transformVideo'
 
-// Use a more generic type with an index signature to match Payload's Where type
-// Extending the Where type from Payload for better compatibility
 type WhereClause = Where;
 
 export async function GET(req: Request) {
@@ -17,6 +14,9 @@ export async function GET(req: Request) {
     const tag = searchParams.get('tag')
     const creator = searchParams.get('creator')
     const search = searchParams.get('search')
+    const topic = searchParams.get('topic') // New parameter
+    const tool = searchParams.get('tool') // New parameter
+    const q = searchParams.get('q') // Alternative search parameter
 
     const where: WhereClause = {
       published: { equals: true },
@@ -28,9 +28,23 @@ export async function GET(req: Request) {
       }
     }
 
+    // Handle topic parameter (maps to categories)
+    if (topic) {
+      where.categories = {
+        in: [topic],
+      }
+    }
+
     if (tag) {
       where.tags = {
         in: [tag],
+      }
+    }
+
+    // Handle tool parameter (maps to tool tags)
+    if (tool) {
+      where.tags = {
+        in: [tool],
       }
     }
 
@@ -40,16 +54,18 @@ export async function GET(req: Request) {
       }
     }
 
-    if (search) {
+    // Handle both 'search' and 'q' parameters
+    const searchQuery = search || q
+    if (searchQuery) {
       where.or = [
         {
           title: {
-            like: search,
+            like: searchQuery,
           },
         },
         {
           description: {
-            like: search,
+            like: searchQuery,
           },
         },
       ]
@@ -62,10 +78,22 @@ export async function GET(req: Request) {
       page,
       limit,
       sort: '-publishedDate',
-      depth: 1,
+      depth: 2, // Increased depth for proper relations
     })
 
-    return NextResponse.json(result)
+    const transformedVideos = transformVideos(result.docs)
+
+    return NextResponse.json({
+      data: transformedVideos,
+      pagination: {
+        page: result.page,
+        limit: result.limit,
+        total: result.totalDocs,
+        totalPages: result.totalPages,
+        hasNextPage: result.hasNextPage,
+        hasPrevPage: result.hasPrevPage,
+      }
+    })
   } catch (error) {
     console.error('Error fetching videos:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
