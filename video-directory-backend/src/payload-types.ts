@@ -177,6 +177,19 @@ export interface Video {
   creator: string | Creator;
   published?: boolean | null;
   publishedDate?: string | null;
+  /**
+   * SEO-friendly URL slug (auto-generated from title if empty)
+   */
+  slug?: string | null;
+  /**
+   * Mark as featured to show on homepage hero section
+   */
+  isFeatured?: boolean | null;
+  /**
+   * Number of times this tutorial has been viewed
+   */
+  views?: number | null;
+  skillLevel?: ('beginner' | 'intermediate' | 'advanced') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -204,6 +217,10 @@ export interface Tag {
   id: string;
   name: string;
   description?: string | null;
+  /**
+   * Categorize this tag as a general tag or a tool/technology
+   */
+  type?: ('general' | 'tool') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -348,6 +365,10 @@ export interface VideosSelect<T extends boolean = true> {
   creator?: T;
   published?: T;
   publishedDate?: T;
+  slug?: T;
+  isFeatured?: T;
+  views?: T;
+  skillLevel?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -370,6 +391,7 @@ export interface CategoriesSelect<T extends boolean = true> {
 export interface TagsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
+  type?: T;
   updatedAt?: T;
   createdAt?: T;
 }

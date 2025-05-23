@@ -6,12 +6,12 @@ const nextConfig = {
   serverExternalPackages: ['sharp'],
   distDir: '.next',
   output: 'standalone',
-  poweredByHeader: false,
-  turbopack: {}
+  poweredByHeader: false
 }
 
 export default withPayload(nextConfig, { 
-  devBundleServerPackages: false,
+  // Set to true to help with bundling issues
+  devBundleServerPackages: true,
   // Add a custom path to your Payload config
   configPath: './src/payload.config.ts' 
 })
