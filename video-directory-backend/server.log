@@ -1,0 +1,29 @@
+
+> video-directory-backend@1.0.0 dev
+> cross-env NODE_OPTIONS=--no-deprecation next dev -p 3001
+
+   ▲ Next.js 15.3.0
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.1.229:3001
+   - Environments: .env
+
+ ✓ Starting...
+ ⚠ The config property `experimental.turbo` is deprecated. Move this setting to `config.turbopack` as Turbopack is now stable.
+ ✓ Ready in 1487ms
+ ○ Compiling /admin/[[...segments]] ...
+ ⨯ ./node_modules/@payloadcms/ui/dist/exports/client/index.js
+Attempted import error: 'hoistQueryParamsToAnd' is not exported from 'payload/shared' (imported as 'kL').
+
+Import trace for requested module:
+./node_modules/@payloadcms/ui/dist/exports/client/index.js
+ ⨯ ./node_modules/@payloadcms/ui/dist/exports/client/index.js
+Attempted import error: 'hoistQueryParamsToAnd' is not exported from 'payload/shared' (imported as 'kL').
+
+Import trace for requested module:
+./node_modules/@payloadcms/ui/dist/exports/client/index.js
+ ⨯ ./node_modules/@payloadcms/ui/dist/exports/client/index.js
+Attempted import error: 'hoistQueryParamsToAnd' is not exported from 'payload/shared' (imported as 'kL').
+
+Import trace for requested module:
+./node_modules/@payloadcms/ui/dist/exports/client/index.js
+ GET /admin/collections/videos/create 500 in 12873ms

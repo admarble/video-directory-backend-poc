@@ -170,11 +170,7 @@ export interface Video {
   videoUrl: string;
   title: string;
   description: string;
-  thumbnail: string | Media;
   duration: number;
-  categories?: (string | Category)[] | null;
-  tags?: (string | Tag)[] | null;
-  creator: string | Creator;
   published?: boolean | null;
   publishedDate?: string | null;
   /**
@@ -202,10 +198,6 @@ export interface Category {
   name: string;
   description?: string | null;
   icon?: (string | null) | Media;
-  /**
-   * Optional parent category to create hierarchical structure
-   */
-  parent?: (string | null) | Category;
   updatedAt: string;
   createdAt: string;
 }
@@ -358,11 +350,7 @@ export interface VideosSelect<T extends boolean = true> {
   videoUrl?: T;
   title?: T;
   description?: T;
-  thumbnail?: T;
   duration?: T;
-  categories?: T;
-  tags?: T;
-  creator?: T;
   published?: T;
   publishedDate?: T;
   slug?: T;
@@ -380,7 +368,6 @@ export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   icon?: T;
-  parent?: T;
   updatedAt?: T;
   createdAt?: T;
 }

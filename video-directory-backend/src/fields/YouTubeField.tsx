@@ -84,7 +84,8 @@ const YouTubeField: React.FC<YouTubeFieldProps> = (props) => {
       
       const videoData: YouTubeVideoData = await response.json();
       
-      // Update form fields with fetched data
+      // FIXED: More careful data handling to avoid circular references
+      // Update form fields with fetched data one by one with clean values
       dispatchFields({
         type: 'UPDATE',
         path: 'title',
@@ -100,17 +101,21 @@ const YouTubeField: React.FC<YouTubeFieldProps> = (props) => {
       dispatchFields({
         type: 'UPDATE',
         path: 'duration',
-        value: videoData.duration,
+        value: Number(videoData.duration),
       });
       
-      dispatchFields({
-        type: 'UPDATE',
-        path: 'publishedDate',
-        value: new Date(videoData.publishedDate).toISOString(),
-      });
+      // Convert date properly
+      const publishDate = new Date(videoData.publishedDate);
+      if (!isNaN(publishDate.getTime())) {
+        dispatchFields({
+          type: 'UPDATE',
+          path: 'publishedDate',
+          value: publishDate.toISOString(),
+        });
+      }
       
-      // Update creator field if we have a creator
-      if (videoData.creatorId) {
+      // Handle relationships carefully - ensure they are simple string IDs
+      if (videoData.creatorId && typeof videoData.creatorId === 'string') {
         dispatchFields({
           type: 'UPDATE',
           path: 'creator',
@@ -118,17 +123,22 @@ const YouTubeField: React.FC<YouTubeFieldProps> = (props) => {
         });
       }
       
-      // Update categories field if we have categories
-      if (videoData.categoryIds && videoData.categoryIds.length > 0) {
-        dispatchFields({
-          type: 'UPDATE',
-          path: 'categories',
-          value: videoData.categoryIds,
-        });
+      // Handle categories array carefully
+      if (videoData.categoryIds && Array.isArray(videoData.categoryIds)) {
+        const cleanCategoryIds = videoData.categoryIds.filter(id => 
+          typeof id === 'string' && id.length > 0
+        );
+        if (cleanCategoryIds.length > 0) {
+          dispatchFields({
+            type: 'UPDATE',
+            path: 'categories',
+            value: cleanCategoryIds,
+          });
+        }
       }
       
-      // Update thumbnail field if we uploaded one
-      if (videoData.thumbnailId) {
+      // Handle thumbnail carefully
+      if (videoData.thumbnailId && typeof videoData.thumbnailId === 'string') {
         dispatchFields({
           type: 'UPDATE',
           path: 'thumbnail',
@@ -136,13 +146,18 @@ const YouTubeField: React.FC<YouTubeFieldProps> = (props) => {
         });
       }
       
-      // Update tags field if we have tags
-      if (videoData.tagIds && videoData.tagIds.length > 0) {
-        dispatchFields({
-          type: 'UPDATE',
-          path: 'tags',
-          value: videoData.tagIds,
-        });
+      // Handle tags array carefully
+      if (videoData.tagIds && Array.isArray(videoData.tagIds)) {
+        const cleanTagIds = videoData.tagIds.filter(id => 
+          typeof id === 'string' && id.length > 0
+        );
+        if (cleanTagIds.length > 0) {
+          dispatchFields({
+            type: 'UPDATE',
+            path: 'tags',
+            value: cleanTagIds,
+          });
+        }
       }
       
       setSuccess(true);

@@ -23,15 +23,8 @@ export const Categories: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
     },
-    {
-      name: 'parent',
-      type: 'relationship',
-      relationTo: 'categories',
-      hasMany: false,
-      admin: {
-        description: 'Optional parent category to create hierarchical structure',
-      },
-    },
+    // Self-referencing parent field removed to prevent circular references
+    // Can be added back in future version with proper depth controls
   ],
   timestamps: true,
 } 
