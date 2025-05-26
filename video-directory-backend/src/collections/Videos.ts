@@ -6,19 +6,44 @@ export const Videos: CollectionConfig = {
     useAsTitle: 'title',
   },
   access: {
-    // Allow authenticated users to create videos
-    create: ({ req: { user } }) => !!user,
+    // Allow authenticated users or automation users to create videos
+    create: ({ req: { user } }) => {
+      // Allow automation users with write permission
+      if (user?.collection === 'automation-users') {
+        return user?.isActive && (user?.permissions === 'video-readwrite' || user?.permissions === 'video-full')
+      }
+      // Allow regular authenticated users
+      return !!user
+    },
     // Allow public read access to published videos
-    read: ({ req: { user }, data }) => {
-      // If user is authenticated, allow access to all videos
+    read: ({ req: { user } }) => {
+      // Allow automation users with any permission
+      if (user?.collection === 'automation-users') {
+        return user?.isActive
+      }
+      // If regular user is authenticated, allow access to all videos
       if (user) return true
       // For public access, only show published videos
       return { published: { equals: true } }
     },
-    // Only authenticated users can update videos
-    update: ({ req: { user } }) => !!user,
-    // Only authenticated users can delete videos
-    delete: ({ req: { user } }) => !!user,
+    // Allow authenticated users or automation users to update videos
+    update: ({ req: { user } }) => {
+      // Allow automation users with write permission
+      if (user?.collection === 'automation-users') {
+        return user?.isActive && (user?.permissions === 'video-readwrite' || user?.permissions === 'video-full')
+      }
+      // Allow regular authenticated users
+      return !!user
+    },
+    // Only allow full permission automation users or regular users to delete
+    delete: ({ req: { user } }) => {
+      // Restrict automation users to full permission only for deletes
+      if (user?.collection === 'automation-users') {
+        return user?.isActive && user?.permissions === 'video-full'
+      }
+      // Allow regular authenticated users
+      return !!user
+    },
   },
   fields: [
     {
@@ -51,7 +76,7 @@ export const Videos: CollectionConfig = {
       name: 'thumbnail',
       type: 'upload',
       relationTo: 'media',
-      required: true,
+      required: false, // Made optional - will be populated by YouTube API
     },
     {
       name: 'duration',
@@ -75,7 +100,7 @@ export const Videos: CollectionConfig = {
       name: 'creator',
       type: 'relationship',
       relationTo: 'creators',
-      required: true,
+      required: false, // Made optional - will be populated by YouTube API
     },
     {
       name: 'published',
@@ -99,18 +124,24 @@ export const Videos: CollectionConfig = {
         description: 'SEO-friendly URL slug (auto-generated from title if empty)',
       },
       hooks: {
-        beforeValidate: [
-          ({ data, operation }) => {
-            if (!data?.slug && data?.title) {
-              // Auto-generate slug from title
-              data.slug = data.title
+        beforeChange: [
+          ({ value, siblingData }) => {
+            // IMPORTANT: Use siblingData instead of data to avoid circular references
+            // Only auto-generate if slug is empty and we have a title
+            if (!value && siblingData?.title) {
+              const slug = siblingData.title
                 .toLowerCase()
                 .replace(/[^a-z0-9\s-]/g, '')
                 .replace(/\s+/g, '-')
                 .replace(/-+/g, '-')
-                .trim()
+                .replace(/^-+|-+$/g, '')
+                .trim();
+              
+              return slug || `video-${Date.now()}`;
             }
-            return data
+            
+            // Return existing value or generate fallback
+            return value || `video-${Date.now()}`;
           },
         ],
       },
