@@ -1,6 +1,7 @@
 import winston from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
 import path from 'path'
+import type { LogContext, PerformanceData } from '@/types/api'
 
 // Create logs directory if it doesn't exist
 const logsDir = path.join(process.cwd(), 'logs')
@@ -69,7 +70,7 @@ const logger = winston.createLogger({
         winston.format.json(),
         winston.format.printf(({ timestamp, level, message, ...meta }) => {
           // Only log performance-related messages
-          if (meta.type === 'performance' || message.includes('performance')) {
+          if (meta.type === 'performance' || (typeof message === 'string' && message.includes('performance'))) {
             return JSON.stringify({ timestamp, level, message, ...meta })
           }
           return ''
@@ -87,10 +88,21 @@ if (process.env.NODE_ENV !== 'production') {
   }))
 }
 
+interface RequestWithConnection {
+  method: string
+  ip?: string
+  connection?: {
+    remoteAddress?: string
+  }
+  headers?: {
+    'user-agent'?: string
+  }
+}
+
 // API Performance tracking helper
-export const trackApiPerformance = (req: any, startTime: number, endpoint: string, statusCode: number) => {
+export const trackApiPerformance = (req: RequestWithConnection, startTime: number, endpoint: string, statusCode: number) => {
   const duration = Date.now() - startTime
-  const performanceData = {
+  const performanceData: PerformanceData = {
     type: 'performance',
     endpoint,
     method: req.method,
@@ -110,7 +122,7 @@ export const trackApiPerformance = (req: any, startTime: number, endpoint: strin
 }
 
 // Error tracking helper
-export const logError = (error: Error, context?: any) => {
+export const logError = (error: Error, context?: LogContext) => {
   logger.error('Application error occurred', {
     message: error.message,
     stack: error.stack,
@@ -120,7 +132,7 @@ export const logError = (error: Error, context?: any) => {
 }
 
 // Business event tracking
-export const logBusinessEvent = (event: string, data?: any) => {
+export const logBusinessEvent = (event: string, data?: LogContext) => {
   logger.info('Business event', {
     type: 'business_event',
     event,
@@ -130,7 +142,7 @@ export const logBusinessEvent = (event: string, data?: any) => {
 }
 
 // Security event tracking
-export const logSecurityEvent = (event: string, req: any, data?: any) => {
+export const logSecurityEvent = (event: string, req: RequestWithConnection, data?: LogContext) => {
   logger.warn('Security event detected', {
     type: 'security',
     event,

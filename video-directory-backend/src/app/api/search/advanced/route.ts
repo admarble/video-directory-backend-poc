@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayloadClient } from '@/getPayload'
-import config from '@payload-config'
-
-interface SearchFilters {
-  categories?: string[]
-  tags?: string[]
-  skillLevel?: string
-  minDuration?: number
-  maxDuration?: number
-  published?: boolean
-}
+import type { SearchFilters } from '@/types/api'
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,9 +18,11 @@ export async function GET(request: NextRequest) {
     const filters: SearchFilters = {
       categories: url.searchParams.get('categories')?.split(',').filter(Boolean),
       tags: url.searchParams.get('tags')?.split(',').filter(Boolean),
-      skillLevel: url.searchParams.get('skillLevel') || undefined,
-      minDuration: url.searchParams.get('minDuration') ? parseInt(url.searchParams.get('minDuration')!) : undefined,
-      maxDuration: url.searchParams.get('maxDuration') ? parseInt(url.searchParams.get('maxDuration')!) : undefined,
+      skillLevel: url.searchParams.get('skillLevel')?.split(',').filter(Boolean),
+      duration: {
+        min: url.searchParams.get('minDuration') ? parseInt(url.searchParams.get('minDuration')!) : undefined,
+        max: url.searchParams.get('maxDuration') ? parseInt(url.searchParams.get('maxDuration')!) : undefined,
+      },
       published: url.searchParams.get('published') !== 'false', // Default to true (only published)
     }
 
@@ -53,13 +46,13 @@ export async function GET(request: NextRequest) {
     if (filters.tags?.length) {
       searchQuery.tags = { in: filters.tags }
     }
-    if (filters.skillLevel) {
-      searchQuery.skillLevel = { equals: filters.skillLevel }
+    if (filters.skillLevel?.length) {
+      searchQuery.skillLevel = { in: filters.skillLevel }
     }
-    if (filters.minDuration || filters.maxDuration) {
+    if (filters.duration?.min || filters.duration?.max) {
       searchQuery.duration = {}
-      if (filters.minDuration) searchQuery.duration.greater_than_equal = filters.minDuration
-      if (filters.maxDuration) searchQuery.duration.less_than_equal = filters.maxDuration
+      if (filters.duration.min) searchQuery.duration.greater_than_equal = filters.duration.min
+      if (filters.duration.max) searchQuery.duration.less_than_equal = filters.duration.max
     }
 
     // Execute search
@@ -79,8 +72,8 @@ export async function GET(request: NextRequest) {
       searchTime: Date.now(),
     })
 
-  } catch (error) {
-    console.error('Advanced search error:', error)
+  } catch (_error) {
+    console.error('Advanced search error:', _error)
     return NextResponse.json(
       { error: 'Search failed', docs: [], totalDocs: 0 },
       { status: 500 }

@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import type { VideoUpdateData } from '@/types/api'
+
+interface UpdateVideoRequest {
+  videoId: string
+  updates: VideoUpdateData
+}
 
 export async function POST(request: Request) {
   try {
     const payload = await getPayload({ config })
-    const body = await request.json()
+    const body = await request.json() as UpdateVideoRequest
     
     // Validate required fields
     if (!body.videoId) {
@@ -29,7 +35,7 @@ export async function POST(request: Request) {
     ]
 
     // Filter to only allowed fields
-    const filteredUpdates: any = {}
+    const filteredUpdates: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(body.updates)) {
       if (allowedFields.includes(key)) {
         filteredUpdates[key] = value

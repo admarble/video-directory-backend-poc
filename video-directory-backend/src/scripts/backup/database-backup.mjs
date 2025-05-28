@@ -18,6 +18,16 @@ const config = {
   compress: true,
 }
 
+interface BackupStats {
+  totalBackups: number
+  totalSize: string
+  files: Array<{
+    name: string
+    size: string
+    created: string
+  }>
+}
+
 // Extract database name from URI
 function getDatabaseName(uri: string): string {
   const match = uri.match(/\/([^/?]+)(\?|$)/)
@@ -50,7 +60,7 @@ async function createBackup() {
     const mongodumpCmd = `mongodump --uri="${config.mongoUri}" --out="${backupPath}"`
     
     console.log('⏳ Executing mongodump...')
-    const { stdout, stderr } = await execAsync(mongodumpCmd)
+    const { stderr } = await execAsync(mongodumpCmd)
     
     if (stderr && !stderr.includes('writing')) {
       console.warn('⚠️  Mongodump warnings:', stderr)
@@ -115,7 +125,7 @@ async function cleanOldBackups() {
 }
 
 // Backup statistics
-async function getBackupStats() {
+async function getBackupStats(): Promise<BackupStats | null> {
   try {
     const files = await fs.readdir(config.backupDir)
     const backupFiles = files.filter(file => 

@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 import config from '../payload.config.js'
+import type { AutomationUser } from '../payload-types.js'
 
 const createAutomationUser = async () => {
   try {
@@ -16,7 +17,7 @@ const createAutomationUser = async () => {
 
     if (existing.docs.length > 0) {
       console.log('⚠️ Automation user already exists!')
-      const user = existing.docs[0]
+      const user = existing.docs[0] as AutomationUser
       console.log(`📋 User ID: ${user.id}`)
       console.log(`👤 Name: ${user.name}`)
       
@@ -33,7 +34,7 @@ const createAutomationUser = async () => {
           console.log('🔑 API Key: Not available (check admin panel)')
           console.log('💡 Go to http://localhost:3001/admin -> Automation Users -> Edit User -> Generate API Key')
         }
-      } catch (authError) {
+      } catch (_authError) {
         console.log('🔑 API Key: Check admin panel for API key generation')
       }
       
@@ -50,7 +51,7 @@ const createAutomationUser = async () => {
         rateLimitTier: 'high',
         isActive: true,
       },
-    })
+    }) as AutomationUser
 
     console.log('✅ Automation user created successfully!')
     console.log(`📋 User ID: ${automationUser.id}`)
@@ -77,7 +78,7 @@ const createAutomationUser = async () => {
     return automationUser
 
   } catch (error) {
-    console.error('❌ Error creating automation user:', error.message)
+    console.error('❌ Error creating automation user:', error instanceof Error ? error.message : 'Unknown error')
     console.error('🔍 Full error:', error)
     throw error
   }

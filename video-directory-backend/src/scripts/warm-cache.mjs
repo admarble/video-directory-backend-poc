@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { getPayloadClient } from '../getPayload.js'
-import config from '../payload.config.js' 
 import redis from '../lib/redis.js'
 
 async function warmCache() {

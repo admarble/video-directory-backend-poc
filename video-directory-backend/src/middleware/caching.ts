@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import redis, { RedisClient } from '@/lib/redis'
+import redis from '@/lib/redis'
 
 interface CacheOptions {
   ttl?: number
@@ -7,12 +7,18 @@ interface CacheOptions {
   bypassCache?: boolean
 }
 
+interface CachedResponse {
+  data: unknown
+  headers: Record<string, string>
+  status: number
+}
+
 export function withCache(options: CacheOptions = {}) {
   return function cacheMiddleware(
     handler: (req: NextRequest) => Promise<NextResponse>
   ) {
     return async function cachedHandler(req: NextRequest) {
-      const { ttl = 3600, tags = [], bypassCache = false } = options
+      const { ttl = 3600, bypassCache = false } = options
       
       // Skip caching for non-GET requests
       if (req.method !== 'GET' || bypassCache) {
@@ -28,11 +34,7 @@ export function withCache(options: CacheOptions = {}) {
 
       try {
         // Try to get from cache first
-        const cachedResponse = await redis.getJSON<{
-          data: any
-          headers: Record<string, string>
-          status: number
-        }>(cacheKey)
+        const cachedResponse = await redis.getJSON<CachedResponse>(cacheKey)
 
         if (cachedResponse) {
           // Return cached response

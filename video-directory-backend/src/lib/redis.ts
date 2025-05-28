@@ -120,6 +120,11 @@ class RedisClient {
   static key(...parts: string[]): string {
     return `video-directory:${parts.join(':')}`
   }
+
+  // Instance method to generate cache key
+  key(...parts: string[]): string {
+    return RedisClient.key(...parts)
+  }
 }
 
 export const redis = new RedisClient()

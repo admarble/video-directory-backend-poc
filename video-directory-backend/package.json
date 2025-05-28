@@ -53,6 +53,7 @@
     "@cloudinary/react": "^1.14.3",
     "@cloudinary/url-gen": "^1.21.0",
     "@payloadcms/db-mongodb": "^3.39.1",
+    "@payloadcms/email-nodemailer": "3.39.1",
     "@payloadcms/next": "^3.39.1",
     "@payloadcms/payload-cloud": "^3.39.1",
     "@payloadcms/plugin-seo": "^3.39.1",
@@ -62,6 +63,7 @@
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
+    "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
     "express-rate-limit": "^7.1.5",
     "graphql": "^16.8.1",
@@ -101,7 +103,16 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "sharp"
-    ]
+    ],
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "react": "19.1.0",
+        "react-dom": "19.1.0"
+      }
+    },
+    "overrides": {
+      "date-fns": "^3.6.0"
+    }
   },
   "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
 }

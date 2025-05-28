@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '../payload.config.js'
 import crypto from 'crypto'
+import type { AutomationUser } from '../payload-types.js'
 
 const generateApiKeyForAutomationUser = async () => {
   try {
@@ -21,7 +22,7 @@ const generateApiKeyForAutomationUser = async () => {
       return
     }
 
-    const user = existingUsers.docs[0]
+    const user = existingUsers.docs[0] as AutomationUser
     console.log(`📋 Found automation user: ${user.name} (ID: ${user.id})`)
 
     // Generate a secure API key
@@ -30,7 +31,7 @@ const generateApiKeyForAutomationUser = async () => {
     // Update the user with the API key
     // Since this is an auth collection with useAPIKey: true, 
     // we need to use the auth update method
-    const updatedUser = await payload.update({
+    const _updatedUser = await payload.update({
       collection: 'automation-users',
       id: user.id,
       data: {
@@ -63,7 +64,7 @@ const generateApiKeyForAutomationUser = async () => {
       fs.writeFileSync(envPath, envContent)
       console.log('✅ .env file updated automatically!')
       
-    } catch (envError) {
+    } catch (_envError) {
       console.log('⚠️ Could not update .env file automatically')
       console.log('Please manually add this line to your .env file:')
       console.log(`PAYLOAD_API_KEY=automation-users API-Key ${apiKey}`)
@@ -77,7 +78,7 @@ const generateApiKeyForAutomationUser = async () => {
     return apiKey
 
   } catch (error) {
-    console.error('❌ Error generating API key:', error.message)
+    console.error('❌ Error generating API key:', error instanceof Error ? error.message : 'Unknown error')
     
     // If there's an issue with the automated approach, 
     // let's try the manual database approach

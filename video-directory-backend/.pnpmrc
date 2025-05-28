@@ -1,0 +1,10 @@
+shamefully-hoist=true
+strict-peer-dependencies=false
+auto-install-peers=true
+resolution-mode=highest
+lockfile-include-tarball-url=false
+
+# Override problematic dependencies - use date-fns 3.6.0 for compatibility
+[overrides]
+"**/@payloadcms/*>date-fns" = "^3.6.0"
+"react-datepicker>date-fns" = "^3.6.0"

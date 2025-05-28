@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { validateAutomationUser } from '../../../../utils/validateAutomationUser';
+import type { YouTubeVideoData, VideoUpdateData } from '@/types/api';
 
 // Extract video ID from YouTube URL
 function extractVideoId(url: string): string | null {
@@ -13,6 +14,31 @@ function extractVideoId(url: string): string | null {
   }
 }
 
+interface CreateVideoRequest {
+  youtubeUrl?: string;
+  youtubeId?: string;
+  enhanceTags?: boolean;
+  analyzeSkillLevel?: boolean;
+  uploadThumbnail?: boolean;
+  published?: boolean;
+}
+
+interface EnhancedTagsResult {
+  suggestedTags?: Array<{ name: string; confidence: number; reason: string }>;
+}
+
+interface SkillLevelResult {
+  skillLevel?: 'beginner' | 'intermediate' | 'advanced';
+  confidence?: number;
+  reasoning?: string;
+}
+
+interface ProcessingResults {
+  youtubeData?: YouTubeVideoData;
+  enhancedTags?: EnhancedTagsResult;
+  skillLevel?: SkillLevelResult;
+}
+
 // Main orchestrator function
 export async function POST(request: Request) {
   try {
@@ -22,7 +48,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: authResult.error }, { status: 401 });
     }
     
-    const body = await request.json();
+    const body = await request.json() as CreateVideoRequest;
     const { 
       youtubeUrl, 
       youtubeId,
@@ -73,40 +99,45 @@ export async function POST(request: Request) {
         throw new Error(`YouTube API failed: ${youtubeResponse.status}`);
       }
       
-      const youtubeData = await youtubeResponse.json();
+      const youtubeData = await youtubeResponse.json() as YouTubeVideoData;
       
       // Step 3: Update video with YouTube data
       console.log('Step 3: Updating video with YouTube data...');
-      const updateData: any = {
+      const updateData: VideoUpdateData = {
         title: youtubeData.title,
         description: youtubeData.description,
         duration: youtubeData.duration,
+      };
+      
+      // Build the update payload with proper typing
+      const payloadUpdateData: Record<string, unknown> = {
+        ...updateData,
         publishedDate: youtubeData.publishedDate,
       };
       
       if (youtubeData.thumbnailId) {
-        updateData.thumbnail = youtubeData.thumbnailId;
+        payloadUpdateData.thumbnail = youtubeData.thumbnailId;
       }
       if (youtubeData.creatorId) {
-        updateData.creator = youtubeData.creatorId;
+        payloadUpdateData.creator = youtubeData.creatorId;
       }
       if (youtubeData.categoryIds && youtubeData.categoryIds.length > 0) {
-        updateData.categories = youtubeData.categoryIds;
+        payloadUpdateData.categories = youtubeData.categoryIds;
       }
       if (youtubeData.tagIds && youtubeData.tagIds.length > 0) {
-        updateData.tags = youtubeData.tagIds;
+        payloadUpdateData.tags = youtubeData.tagIds;
       }
       
       await payload.update({
         collection: 'videos',
         id: createdVideoId,
-        data: updateData
+        data: payloadUpdateData
       });
       
       console.log('Updated video with YouTube data');
       
       // Step 4: Enhanced tag analysis (if requested)
-      let enhancedTagsResult = null;
+      let enhancedTagsResult: EnhancedTagsResult | null = null;
       if (enhanceTags) {
         console.log('Step 4: Performing enhanced tag analysis...');
         try {
@@ -127,7 +158,7 @@ export async function POST(request: Request) {
           });
           
           if (tagAnalysisResponse.ok) {
-            enhancedTagsResult = await tagAnalysisResponse.json();
+            enhancedTagsResult = await tagAnalysisResponse.json() as EnhancedTagsResult;
             console.log('Enhanced tags analysis completed');
           } else {
             console.warn('Enhanced tags analysis failed:', tagAnalysisResponse.status);
@@ -138,7 +169,7 @@ export async function POST(request: Request) {
       }
       
       // Step 5: Skill level analysis (if requested)
-      let skillLevelResult = null;
+      let skillLevelResult: SkillLevelResult | null = null;
       if (analyzeSkillLevel) {
         console.log('Step 5: Performing skill level analysis...');
         try {
@@ -151,13 +182,13 @@ export async function POST(request: Request) {
             body: JSON.stringify({
               title: youtubeData.title,
               description: youtubeData.description,
-              tags: enhancedTagsResult?.suggestedTags?.map((t: any) => t.name) || [],
+              tags: enhancedTagsResult?.suggestedTags?.map((t) => t.name) || [],
               videoId: createdVideoId
             })
           });
           
           if (skillLevelResponse.ok) {
-            skillLevelResult = await skillLevelResponse.json();
+            skillLevelResult = await skillLevelResponse.json() as SkillLevelResult;
             console.log('Skill level analysis completed');
           } else {
             console.warn('Skill level analysis failed:', skillLevelResponse.status);
@@ -186,7 +217,7 @@ export async function POST(request: Request) {
           youtubeData,
           enhancedTags: enhancedTagsResult,
           skillLevel: skillLevelResult
-        }
+        } as ProcessingResults
       });
       
     } catch (processingError) {

@@ -1,11 +1,26 @@
+import type { AutomationUser } from '@/payload-types'
+
+interface ValidationResult {
+  isValid: boolean
+  error?: string
+  user?: AutomationUser
+}
+
+interface PayloadUser extends AutomationUser {
+  collection: string
+}
+
+interface RequestWithUser {
+  user?: PayloadUser
+}
+
 /**
  * Utility function to validate automation user authentication
  * 
  * This function checks if the request is properly authenticated with a valid API key
  * from the automation-users collection using Payload's built-in API key authentication.
  */
-
-export async function validateAutomationUser(request: Request) {
+export async function validateAutomationUser(request: Request): Promise<ValidationResult> {
   const authHeader = request.headers.get('authorization');
   
   if (!authHeader || !authHeader.startsWith('automation-users API-Key ')) {
@@ -61,8 +76,8 @@ export async function validateAutomationUser(request: Request) {
     });
     
     return { isValid: true, user };
-  } catch (error) {
-    console.error('Auth validation error:', error);
+  } catch (_error) {
+    console.error('Auth validation error:', _error);
     return { isValid: false, error: 'Authentication failed' };
   }
 }
@@ -73,7 +88,7 @@ export async function validateAutomationUser(request: Request) {
  * When using Payload's built-in API key middleware, the authenticated user
  * is automatically available in req.user. This is a simpler approach.
  */
-export function validateAutomationUserFromContext(req: any) {
+export function validateAutomationUserFromContext(req: RequestWithUser): ValidationResult {
   // Check if the request has been authenticated by Payload's middleware
   if (!req.user) {
     return { isValid: false, error: 'No authenticated user found' };

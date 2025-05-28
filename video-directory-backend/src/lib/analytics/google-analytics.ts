@@ -1,6 +1,8 @@
+import type { GAEvent } from '@/types/api'
+
 declare global {
   interface Window {
-    gtag: (...args: any[]) => void
+    gtag: (...args: unknown[]) => void
   }
 }
 
@@ -17,11 +19,11 @@ export function trackPageView(url: string, title?: string) {
 }
 
 // Track custom events
-export function trackEvent(eventName: string, parameters?: Record<string, any>) {
+export function trackEvent(eventName: string, parameters?: GAEvent) {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', eventName, {
       event_category: 'engagement',
-      event_label: parameters?.label,
+      event_label: parameters?.event_label,
       value: parameters?.value,
       ...parameters,
     })

@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayloadClient } from '@/getPayload'
-import config from '@payload-config'
+import type { 
+  AnalyticsData, 
+  PopularVideo, 
+  RecentActivity, 
+  CategoryWithCount, 
+  SkillDistribution, 
+  DurationStats
+} from '@/types/api'
+import type { Category } from '@/payload-types'
 
 export async function GET(request: NextRequest) {
   try {
@@ -79,7 +87,7 @@ export async function GET(request: NextRequest) {
       select: { skillLevel: true }
     })
 
-    const skillDistribution = skillLevels.docs.reduce((acc: any, video: any) => {
+    const skillDistribution: SkillDistribution = skillLevels.docs.reduce((acc: SkillDistribution, video: any) => {
       const level = video.skillLevel || 'beginner'
       acc[level] = (acc[level] || 0) + 1
       return acc
@@ -93,7 +101,7 @@ export async function GET(request: NextRequest) {
       select: { duration: true }
     })
 
-    const durationStats = durations.docs.reduce((acc: any, video: any) => {
+    const durationStats: DurationStats = durations.docs.reduce((acc: DurationStats, video: any) => {
       const duration = video.duration || 0
       if (duration < 300) acc.short++ // < 5 min
       else if (duration < 900) acc.medium++ // 5-15 min
@@ -118,7 +126,7 @@ export async function GET(request: NextRequest) {
       ? ((newVideos.totalDocs - previousVideos.totalDocs) / previousVideos.totalDocs * 100).toFixed(1)
       : '100'
 
-    const analytics = {
+    const analytics: AnalyticsData = {
       overview: {
         totalVideos: totalVideos.totalDocs,
         newVideos: newVideos.totalDocs,
@@ -126,25 +134,29 @@ export async function GET(request: NextRequest) {
         growthRate: `${growthRate}%`,
         timeframe
       },
-      topCategories: topCategories.docs.map((cat: any) => ({
+      topCategories: topCategories.docs.map((cat: Category): CategoryWithCount => ({
         id: cat.id,
         name: cat.name,
-        videoCount: cat.videos?.length || 0
+        videoCount: 0 // This would need a separate query to count videos per category
       })),
-      popularVideos: popularVideos.docs.map((video: any) => ({
+      popularVideos: popularVideos.docs.map((video: any): PopularVideo => ({
         id: video.id,
         title: video.title,
         views: video.views || 0,
-        categories: video.categories?.map((cat: any) => cat.name) || [],
-        creator: video.creator?.name || 'Unknown',
-        thumbnail: video.thumbnail?.url
+        categories: Array.isArray(video.categories) 
+          ? video.categories.map((cat: any) => typeof cat === 'string' ? cat : cat.name) 
+          : [],
+        creator: typeof video.creator === 'string' ? 'Unknown' : video.creator?.name || 'Unknown',
+        thumbnail: typeof video.thumbnail === 'string' ? undefined : video.thumbnail?.url
       })),
-      recentActivity: recentVideos.docs.map((video: any) => ({
+      recentActivity: recentVideos.docs.map((video: any): RecentActivity => ({
         id: video.id,
         title: video.title,
         createdAt: video.createdAt,
-        categories: video.categories?.map((cat: any) => cat.name) || [],
-        creator: video.creator?.name || 'Unknown'
+        categories: Array.isArray(video.categories) 
+          ? video.categories.map((cat: any) => typeof cat === 'string' ? cat : cat.name) 
+          : [],
+        creator: typeof video.creator === 'string' ? 'Unknown' : video.creator?.name || 'Unknown'
       })),
       distributions: {
         skillLevel: skillDistribution,
@@ -155,8 +167,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(analytics)
 
-  } catch (error) {
-    console.error('Analytics API error:', error)
+  } catch (_error) {
+    console.error('Analytics API error:', _error)
     return NextResponse.json(
       { error: 'Failed to generate analytics' },
       { status: 500 }
@@ -167,14 +179,14 @@ export async function GET(request: NextRequest) {
 // POST endpoint for tracking custom events
 export async function POST(request: NextRequest) {
   try {
-    const { event, data } = await request.json()
+    const { event, data } = await request.json() as { event: string; data?: unknown }
     
     // Here you could store custom analytics events
     // For now, we'll just log them
     console.log('Analytics event:', { event, data, timestamp: new Date().toISOString() })
     
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { error: 'Failed to track event' },
       { status: 500 }

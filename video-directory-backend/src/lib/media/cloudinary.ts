@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary'
+import type { CloudinaryUploadResult } from '@/types/api'
 
 // Configure Cloudinary
 cloudinary.config({
@@ -7,16 +8,31 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
+interface UploadOptions {
+  folder?: string
+  public_id?: string
+  transformation?: Record<string, unknown>
+  resource_type?: 'image' | 'video' | 'raw' | 'auto'
+}
+
+interface OptimizedImageOptions {
+  width?: number
+  height?: number
+  crop?: string
+  quality?: string | number
+  format?: string
+}
+
+interface ResponsiveImage {
+  width: number
+  url: string
+}
+
 // Upload image to Cloudinary
 export async function uploadToCloudinary(
   file: Buffer | string, 
-  options: {
-    folder?: string
-    public_id?: string
-    transformation?: any
-    resource_type?: 'image' | 'video' | 'raw' | 'auto'
-  } = {}
-) {
+  options: UploadOptions = {}
+): Promise<CloudinaryUploadResult> {
   try {
     const result = await cloudinary.uploader.upload(file as string, {
       folder: options.folder || 'video-directory',
@@ -29,12 +45,17 @@ export async function uploadToCloudinary(
 
     return {
       url: result.secure_url,
+      secure_url: result.secure_url,
       public_id: result.public_id,
+      version: result.version,
+      signature: result.signature,
       width: result.width,
       height: result.height,
       format: result.format,
       resource_type: result.resource_type,
+      created_at: result.created_at,
       bytes: result.bytes,
+      type: result.type,
     }
   } catch (error) {
     console.error('Cloudinary upload error:', error)
@@ -45,14 +66,8 @@ export async function uploadToCloudinary(
 // Generate optimized image URL
 export function generateOptimizedImageUrl(
   publicId: string,
-  options: {
-    width?: number
-    height?: number
-    crop?: string
-    quality?: string | number
-    format?: string
-  } = {}
-) {
+  options: OptimizedImageOptions = {}
+): string {
   return cloudinary.url(publicId, {
     width: options.width,
     height: options.height,
@@ -64,7 +79,7 @@ export function generateOptimizedImageUrl(
 }
 
 // Generate responsive image URLs
-export function generateResponsiveImages(publicId: string) {
+export function generateResponsiveImages(publicId: string): ResponsiveImage[] {
   const breakpoints = [320, 640, 768, 1024, 1280, 1536]
   
   return breakpoints.map(width => ({
@@ -74,7 +89,7 @@ export function generateResponsiveImages(publicId: string) {
 }
 
 // Delete image from Cloudinary
-export async function deleteFromCloudinary(publicId: string) {
+export async function deleteFromCloudinary(publicId: string): Promise<unknown> {
   try {
     const result = await cloudinary.uploader.destroy(publicId)
     return result

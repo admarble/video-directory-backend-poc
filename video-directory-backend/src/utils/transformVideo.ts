@@ -71,8 +71,8 @@ export function transformVideo(video: Video): TransformedVideo {
     topics,
     tools: tools.length > 0 ? tools : undefined,
     skillLevel: video.skillLevel || 'beginner',
-    publishedAt: video.publishedDate,
-    isFeatured: video.isFeatured,
+    publishedAt: video.publishedDate || undefined,
+    isFeatured: video.isFeatured || undefined,
     videoUrl: video.videoUrl,
     duration: video.duration,
   }
