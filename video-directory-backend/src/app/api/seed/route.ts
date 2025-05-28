@@ -41,7 +41,11 @@ export async function POST() {
     const { getPayloadClient } = await import('../../../getPayload')
     const payload = await getPayloadClient()
     
-    const results = {
+    const results: {
+      created: Array<{ name: string; id: string }>;
+      existing: string[];
+      errors: Array<{ category: string; error: string }>;
+    } = {
       created: [],
       existing: [],
       errors: [],
@@ -83,7 +87,7 @@ export async function POST() {
         console.error(`Error creating category "${categoryData.name}":`, error)
         results.errors.push({
           category: categoryData.name,
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
         })
       }
     }
@@ -120,7 +124,7 @@ export async function POST() {
     return NextResponse.json({
       success: false,
       error: 'Failed to seed categories',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     }, { status: 500 })
   }
 }
@@ -150,7 +154,7 @@ export async function GET() {
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch categories',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     }, { status: 500 })
   }
 }

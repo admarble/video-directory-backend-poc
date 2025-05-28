@@ -1,0 +1,320 @@
+{
+  "name": "Video Directory MCP Server - 2025 Best Practices",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "bearerAuth",
+        "exposedWorkflows": "include",
+        "workflowsToInclude": [
+          "REPLACE_WITH_CREATE_VIDEO_WORKFLOW_ID",
+          "REPLACE_WITH_GET_VIDEO_WORKFLOW_ID", 
+          "REPLACE_WITH_UPDATE_VIDEO_WORKFLOW_ID",
+          "REPLACE_WITH_SEARCH_VIDEOS_WORKFLOW_ID",
+          "REPLACE_WITH_ANALYZE_SKILL_WORKFLOW_ID",
+          "REPLACE_WITH_ENHANCE_TAGS_WORKFLOW_ID"
+        ],
+        "tools": {
+          "create_video_from_youtube": {
+            "name": "create_video_from_youtube",
+            "description": "Create a new video entry from a YouTube URL with AI enhancements including skill level analysis, tag suggestions, and thumbnail processing",
+            "workflowId": "REPLACE_WITH_CREATE_VIDEO_WORKFLOW_ID",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "youtubeUrl": {
+                  "type": "string",
+                  "description": "The YouTube URL to process (e.g., https://www.youtube.com/watch?v=VIDEO_ID)"
+                },
+                "options": {
+                  "type": "object",
+                  "description": "Processing options",
+                  "properties": {
+                    "enhanceTags": {
+                      "type": "boolean",
+                      "description": "Enable AI-powered tag enhancement",
+                      "default": true
+                    },
+                    "analyzeSkillLevel": {
+                      "type": "boolean", 
+                      "description": "Enable skill level analysis (beginner/intermediate/advanced)",
+                      "default": true
+                    },
+                    "uploadThumbnail": {
+                      "type": "boolean",
+                      "description": "Download and store video thumbnail",
+                      "default": true
+                    },
+                    "published": {
+                      "type": "boolean",
+                      "description": "Auto-publish video or save as draft",
+                      "default": false
+                    }
+                  }
+                }
+              },
+              "required": ["youtubeUrl"]
+            }
+          },
+          "get_video_details": {
+            "name": "get_video_details",
+            "description": "Retrieve detailed information about a specific video by ID",
+            "workflowId": "REPLACE_WITH_GET_VIDEO_WORKFLOW_ID",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "videoId": {
+                  "type": "string",
+                  "description": "The unique video ID to retrieve"
+                }
+              },
+              "required": ["videoId"]
+            }
+          },
+          "update_video_fields": {
+            "name": "update_video_fields", 
+            "description": "Update specific fields of an existing video entry",
+            "workflowId": "REPLACE_WITH_UPDATE_VIDEO_WORKFLOW_ID",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "videoId": {
+                  "type": "string",
+                  "description": "The video ID to update"
+                },
+                "updates": {
+                  "type": "object",
+                  "description": "Fields to update",
+                  "properties": {
+                    "title": {"type": "string"},
+                    "description": {"type": "string"},
+                    "published": {"type": "boolean"},
+                    "skillLevel": {"type": "string", "enum": ["beginner", "intermediate", "advanced"]},
+                    "tags": {"type": "array", "items": {"type": "string"}},
+                    "categories": {"type": "array", "items": {"type": "string"}}
+                  }
+                }
+              },
+              "required": ["videoId", "updates"]
+            }
+          },
+          "search_videos": {
+            "name": "search_videos",
+            "description": "Search for videos using text queries and filters",
+            "workflowId": "REPLACE_WITH_SEARCH_VIDEOS_WORKFLOW_ID",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "query": {
+                  "type": "string",
+                  "description": "Search terms to look for in video titles and descriptions"
+                },
+                "filters": {
+                  "type": "object",
+                  "description": "Additional search filters",
+                  "properties": {
+                    "limit": {"type": "integer", "default": 10, "maximum": 50},
+                    "page": {"type": "integer", "default": 1},
+                    "published": {"type": "boolean"},
+                    "skillLevel": {"type": "string", "enum": ["beginner", "intermediate", "advanced"]},
+                    "category": {"type": "string"},
+                    "tag": {"type": "string"}
+                  }
+                }
+              },
+              "required": ["query"]
+            }
+          },
+          "analyze_skill_level": {
+            "name": "analyze_skill_level",
+            "description": "Analyze content to determine skill level (beginner/intermediate/advanced) with reasoning",
+            "workflowId": "REPLACE_WITH_ANALYZE_SKILL_WORKFLOW_ID",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "Video title to analyze"
+                },
+                "description": {
+                  "type": "string", 
+                  "description": "Video description content"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {"type": "string"},
+                  "description": "Existing tags to consider in analysis"
+                }
+              },
+              "required": ["title"]
+            }
+          },
+          "enhance_tags": {
+            "name": "enhance_tags",
+            "description": "Generate AI-powered tag suggestions for video content with confidence scores",
+            "workflowId": "REPLACE_WITH_ENHANCE_TAGS_WORKFLOW_ID",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "Video title for tag analysis"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Video description content"
+                },
+                "existingTags": {
+                  "type": "array",
+                  "items": {"type": "string"},
+                  "description": "Current tags to enhance or build upon"
+                }
+              },
+              "required": ["title"]
+            }
+          }
+        }
+      },
+      "id": "mcp-server-trigger-main",
+      "name": "MCP Server Trigger",
+      "type": "n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MCP Request Router and Validator\nconst input = $input.all()[0].json;\nconst toolName = input.tool;\nconst args = input.arguments || {};\n\n// Log incoming request for debugging\nconsole.log('MCP Tool Request:', { toolName, args });\n\n// Tool mapping with workflow IDs\nconst toolWorkflowMap = {\n  'create_video_from_youtube': 'REPLACE_WITH_CREATE_VIDEO_WORKFLOW_ID',\n  'get_video_details': 'REPLACE_WITH_GET_VIDEO_WORKFLOW_ID',\n  'update_video_fields': 'REPLACE_WITH_UPDATE_VIDEO_WORKFLOW_ID',\n  'search_videos': 'REPLACE_WITH_SEARCH_VIDEOS_WORKFLOW_ID',\n  'analyze_skill_level': 'REPLACE_WITH_ANALYZE_SKILL_WORKFLOW_ID',\n  'enhance_tags': 'REPLACE_WITH_ENHANCE_TAGS_WORKFLOW_ID'\n};\n\n// Validate tool exists\nif (!toolWorkflowMap[toolName]) {\n  return [{\n    json: {\n      error: `Unknown tool: ${toolName}`,\n      availableTools: Object.keys(toolWorkflowMap),\n      success: false\n    }\n  }];\n}\n\n// Get workflow ID\nconst workflowId = toolWorkflowMap[toolName];\n\n// Return routing information\nreturn [{\n  json: {\n    toolName: toolName,\n    workflowId: workflowId,\n    arguments: args,\n    success: true,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "mcp-request-router", 
+      "name": "MCP Request Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "valid-request",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ]
+        }
+      },
+      "id": "request-validator",
+      "name": "Request Validator", 
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "={{ $json.workflowId }}",
+        "source": "parameter",
+        "parameters": "={{ $json.arguments }}"
+      },
+      "id": "execute-tool-workflow",
+      "name": "Execute Tool Workflow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "error",
+              "name": "error",
+              "value": "={{ $json.error }}",
+              "type": "string"
+            },
+            {
+              "id": "success",
+              "name": "success",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "timestamp",
+              "name": "timestamp",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "format-error-response",
+      "name": "Format Error Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [900, 400]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "MCP Server Trigger": {
+      "main": [
+        [
+          {
+            "node": "MCP Request Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Request Router": {
+      "main": [
+        [
+          {
+            "node": "Request Validator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Validator": {
+      "main": [
+        [
+          {
+            "node": "Execute Tool Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "name": "MCP Server",
+      "id": "mcp-server"
+    }
+  ]
+}

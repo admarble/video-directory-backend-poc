@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPayload } from '@/getPayload';
+import { getPayloadClient } from '@/getPayload';
 
 /**
  * Filter configuration matching the frontend
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const page = parseInt(searchParams.get('page') || '1');
 
-    const payload = await getPayload();
+    const payload = await getPayloadClient();
     
     // Build the where clause for Payload CMS
     const whereClause: any = {
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
 
     // Execute the query
     const result = await payload.find({
-      collection: 'tutorials',
+      collection: 'videos',
       where: whereClause,
       sort,
       limit,

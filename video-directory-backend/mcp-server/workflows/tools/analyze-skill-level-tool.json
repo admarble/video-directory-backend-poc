@@ -1,0 +1,273 @@
+{
+  "name": "Analyze Skill Level Tool",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Extract and validate input parameters\nconst input = $input.all()[0].json;\nconst title = input.title;\nconst description = input.description;\nconst tags = input.tags || [];\nconst videoId = input.videoId;\n\n// Validate required fields\nif (!title || typeof title !== 'string') {\n  return [{\n    json: {\n      error: 'Title is required and must be a string',\n      success: false\n    }\n  }];\n}\n\nif (!description || typeof description !== 'string') {\n  return [{\n    json: {\n      error: 'Description is required and must be a string',\n      success: false\n    }\n  }];\n}\n\n// Prepare the request payload\nconst payload = {\n  title: title.trim(),\n  description: description.trim(),\n  tags: Array.isArray(tags) ? tags : [],\n  videoId: videoId || null\n};\n\nreturn [{\n  json: {\n    payload: payload,\n    success: true\n  }\n}];"
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [200, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "success-check",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-validation",
+      "name": "Check Validation",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [400, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3001/api/ai-tools/skill-level",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "call-skill-analysis-api",
+      "name": "Call Skill Analysis API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [600, 100],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "payload-cms-auth",
+          "name": "Payload CMS Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "skillLevel",
+              "name": "skillLevel",
+              "value": "={{ $json.skillLevel }}",
+              "type": "string"
+            },
+            {
+              "id": "confidence",
+              "name": "confidence",
+              "value": "={{ $json.confidence }}",
+              "type": "number"
+            },
+            {
+              "id": "reasoning",
+              "name": "reasoning",
+              "value": "={{ $json.reasoning }}",
+              "type": "string"
+            },
+            {
+              "id": "keywords",
+              "name": "keywords",
+              "value": "={{ $json.keywords || [] }}",
+              "type": "array"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "Skill level analysis completed successfully",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "format-success-response",
+      "name": "Format Success Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [800, 100]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "error",
+              "name": "error",
+              "value": "Skill level analysis failed",
+              "type": "string"
+            },
+            {
+              "id": "details",
+              "name": "details",
+              "value": "={{ $json.error || $json.message || 'Analysis service unavailable' }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "format-api-error",
+      "name": "Format API Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [800, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "error",
+              "name": "error",
+              "value": "={{ $json.error }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "format-validation-error",
+      "name": "Format Validation Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "events": [
+          "activate"
+        ]
+      },
+      "type": "n8n-nodes-base.n8nTrigger",
+      "typeVersion": 1,
+      "position": [0, 200],
+      "id": "n8n-trigger",
+      "name": "n8n Trigger"
+    }
+  ],
+  "pinData": {
+    "n8n Trigger": [
+      {
+        "json": {
+          "title": "Advanced React Hooks and Context API Tutorial",
+          "description": "Deep dive into useContext, useReducer, custom hooks, and performance optimization patterns in React applications",
+          "tags": ["react", "hooks", "javascript"],
+          "videoId": "6832420b4458c13e98cb862f"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "n8n Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Check Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Validation": {
+      "main": [
+        [
+          {
+            "node": "Call Skill Analysis API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Validation Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Skill Analysis API": {
+      "main": [
+        [
+          {
+            "node": "Format Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format API Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "name": "MCP Tool",
+      "id": "mcp-tool"
+    }
+  ]
+}

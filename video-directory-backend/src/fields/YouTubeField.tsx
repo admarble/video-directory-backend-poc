@@ -84,50 +84,70 @@ const YouTubeField: React.FC<YouTubeFieldProps> = (props) => {
       
       const videoData: YouTubeVideoData = await response.json();
       
-      // FIXED: More careful data handling to avoid circular references
-      // Update form fields with fetched data one by one with clean values
-      dispatchFields({
-        type: 'UPDATE',
-        path: 'title',
-        value: videoData.title,
-      });
+      // FIXED: Update fields one by one with primitive values only
+      // Ensure we don't pass any complex objects that could create circular references
       
-      dispatchFields({
-        type: 'UPDATE',
-        path: 'description',
-        value: videoData.description,
-      });
-      
-      dispatchFields({
-        type: 'UPDATE',
-        path: 'duration',
-        value: Number(videoData.duration),
-      });
-      
-      // Convert date properly
-      const publishDate = new Date(videoData.publishedDate);
-      if (!isNaN(publishDate.getTime())) {
+      // Update basic text fields
+      if (videoData.title) {
         dispatchFields({
           type: 'UPDATE',
-          path: 'publishedDate',
-          value: publishDate.toISOString(),
+          path: 'title',
+          value: String(videoData.title),
         });
       }
       
-      // Handle relationships carefully - ensure they are simple string IDs
+      if (videoData.description) {
+        dispatchFields({
+          type: 'UPDATE',
+          path: 'description',
+          value: String(videoData.description),
+        });
+      }
+      
+      if (videoData.duration) {
+        dispatchFields({
+          type: 'UPDATE',
+          path: 'duration',
+          value: Number(videoData.duration),
+        });
+      }
+      
+      // Handle published date
+      if (videoData.publishedDate) {
+        const publishDate = new Date(videoData.publishedDate);
+        if (!isNaN(publishDate.getTime())) {
+          dispatchFields({
+            type: 'UPDATE',
+            path: 'publishedDate',
+            value: publishDate.toISOString(),
+          });
+        }
+      }
+      
+      // Handle thumbnail - only pass the string ID, not the full object
+      if (videoData.thumbnailId && typeof videoData.thumbnailId === 'string') {
+        dispatchFields({
+          type: 'UPDATE',
+          path: 'thumbnail',
+          value: String(videoData.thumbnailId),
+        });
+      }
+      
+      // Handle creator - only pass the string ID, not the full object
       if (videoData.creatorId && typeof videoData.creatorId === 'string') {
         dispatchFields({
           type: 'UPDATE',
           path: 'creator',
-          value: videoData.creatorId,
+          value: String(videoData.creatorId),
         });
       }
       
-      // Handle categories array carefully
+      // Handle categories - only pass array of string IDs
       if (videoData.categoryIds && Array.isArray(videoData.categoryIds)) {
-        const cleanCategoryIds = videoData.categoryIds.filter(id => 
-          typeof id === 'string' && id.length > 0
-        );
+        const cleanCategoryIds = videoData.categoryIds
+          .filter(id => typeof id === 'string' && id.length > 0)
+          .map(id => String(id)); // Ensure they're strings
+        
         if (cleanCategoryIds.length > 0) {
           dispatchFields({
             type: 'UPDATE',
@@ -137,20 +157,12 @@ const YouTubeField: React.FC<YouTubeFieldProps> = (props) => {
         }
       }
       
-      // Handle thumbnail carefully
-      if (videoData.thumbnailId && typeof videoData.thumbnailId === 'string') {
-        dispatchFields({
-          type: 'UPDATE',
-          path: 'thumbnail',
-          value: videoData.thumbnailId,
-        });
-      }
-      
-      // Handle tags array carefully
+      // Handle tags - only pass array of string IDs
       if (videoData.tagIds && Array.isArray(videoData.tagIds)) {
-        const cleanTagIds = videoData.tagIds.filter(id => 
-          typeof id === 'string' && id.length > 0
-        );
+        const cleanTagIds = videoData.tagIds
+          .filter(id => typeof id === 'string' && id.length > 0)
+          .map(id => String(id)); // Ensure they're strings
+        
         if (cleanTagIds.length > 0) {
           dispatchFields({
             type: 'UPDATE',

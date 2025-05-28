@@ -103,12 +103,21 @@ async function findOrCreateCategories(categoryNames: string[]): Promise<string[]
     const categoryIds: string[] = [];
     
     for (const categoryName of categoryNames) {
+      // FIXED: Add validation to prevent empty/invalid category names
+      if (!categoryName || typeof categoryName !== 'string' || !categoryName.trim()) {
+        console.warn('Skipping invalid category name:', categoryName);
+        continue;
+      }
+      
+      const cleanCategoryName = categoryName.trim();
+      console.log('Processing category:', cleanCategoryName);
+      
       // First, try to find an existing category with this name
       const existingCategories = await payload.find({
         collection: 'categories',
         where: {
           name: {
-            equals: categoryName,
+            equals: cleanCategoryName,
           },
         },
         limit: 1,
@@ -116,20 +125,24 @@ async function findOrCreateCategories(categoryNames: string[]): Promise<string[]
       
       if (existingCategories.docs.length > 0) {
         // Category already exists, use its ID
-        categoryIds.push(existingCategories.docs[0].id);
+        console.log('Found existing category:', cleanCategoryName, 'ID:', existingCategories.docs[0].id);
+        categoryIds.push(String(existingCategories.docs[0].id));
       } else {
         // Category doesn't exist, create a new one
+        console.log('Creating new category:', cleanCategoryName);
         const newCategory = await payload.create({
           collection: 'categories',
           data: {
-            name: categoryName,
+            name: cleanCategoryName,
             description: `Automatically created from YouTube video categorization`,
           },
         });
-        categoryIds.push(newCategory.id);
+        console.log('Created category:', cleanCategoryName, 'ID:', newCategory.id);
+        categoryIds.push(String(newCategory.id));
       }
     }
     
+    console.log('Final category IDs:', categoryIds);
     return categoryIds;
   } catch (error) {
     console.error('Error processing categories:', error);
@@ -168,6 +181,22 @@ async function detectCategories(categoryId: string, title: string, description: 
 // Function to find or create a creator in the database
 async function findOrCreateCreator(channelId: string, channelTitle: string): Promise<string | null> {
   try {
+    // FIXED: Add validation to prevent empty/invalid creator data
+    if (!channelId || !channelTitle || typeof channelId !== 'string' || typeof channelTitle !== 'string') {
+      console.warn('Invalid creator data:', { channelId, channelTitle });
+      return null;
+    }
+    
+    const cleanChannelId = channelId.trim();
+    const cleanChannelTitle = channelTitle.trim();
+    
+    if (!cleanChannelId || !cleanChannelTitle) {
+      console.warn('Empty creator data after cleaning:', { cleanChannelId, cleanChannelTitle });
+      return null;
+    }
+    
+    console.log('Processing creator:', cleanChannelTitle, 'Channel ID:', cleanChannelId);
+    
     // Import payload dynamically to avoid issues with server components
     const { getPayloadClient } = await import('../../../getPayload');
     const payload = await getPayloadClient();
@@ -183,12 +212,12 @@ async function findOrCreateCreator(channelId: string, channelTitle: string): Pro
               equals: 'youtube',
             },
             'socialLinks.url': {
-              contains: channelId,
+              contains: cleanChannelId,
             },
           },
           {
             name: {
-              equals: channelTitle,
+              equals: cleanChannelTitle,
             },
           },
         ],
@@ -198,15 +227,17 @@ async function findOrCreateCreator(channelId: string, channelTitle: string): Pro
     
     if (existingCreators.docs.length > 0) {
       // Creator already exists, return its ID
-      return existingCreators.docs[0].id;
+      console.log('Found existing creator:', cleanChannelTitle, 'ID:', existingCreators.docs[0].id);
+      return String(existingCreators.docs[0].id);
     } else {
       // Creator doesn't exist, create a new one
-      const channelUrl = `https://www.youtube.com/channel/${channelId}`;
+      const channelUrl = `https://www.youtube.com/channel/${cleanChannelId}`;
+      console.log('Creating new creator:', cleanChannelTitle);
       
       const newCreator = await payload.create({
         collection: 'creators',
         data: {
-          name: channelTitle,
+          name: cleanChannelTitle,
           bio: `YouTube creator - automatically imported from YouTube API`,
           socialLinks: [
             {
@@ -217,7 +248,8 @@ async function findOrCreateCreator(channelId: string, channelTitle: string): Pro
         },
       });
       
-      return newCreator.id;
+      console.log('Created creator:', cleanChannelTitle, 'ID:', newCreator.id);
+      return String(newCreator.id);
     }
   } catch (error) {
     console.error('Error processing creator:', error);

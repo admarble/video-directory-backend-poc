@@ -1,0 +1,405 @@
+{
+  "name": "AI Video Curation Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "video-agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "options": {
+          "temperature": 0.3
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an AI agent specialized in curating video content for a developer/indie hacker community. Your job is to:\n\n1. Analyze YouTube videos for relevance and quality\n2. Determine appropriate categorization and tagging\n3. Assess skill level requirements\n4. Decide which enhancement tools to use\n5. Make final decisions about publication\n\nYou have access to these tools:\n- create_video: Creates and processes a video entry\n- skill_level_analyzer: Analyzes content difficulty\n- tag_enhancer: Suggests additional relevant tags\n- quality_assessor: Evaluates video quality and relevance\n\nAlways provide reasoning for your decisions and be conservative about publishing low-quality content."
+            },
+            {
+              "role": "user", 
+              "content": "Process this video: {{ $json.youtubeUrl || $json.youtubeId }}\n\nOptions: {{ JSON.stringify($json.options || {}) }}\n\nPlease analyze and process this video for our developer community. Start by creating the video entry, then decide which additional tools to use based on the initial results."
+            }
+          ]
+        },
+        "tools": {
+          "values": [
+            {
+              "name": "create_video",
+              "description": "Creates a video entry and performs initial processing including YouTube data fetch, basic categorization, and tagging",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "youtubeUrl": {"type": "string", "description": "The YouTube URL to process"},
+                  "enhanceTags": {"type": "boolean", "description": "Whether to perform enhanced tag analysis", "default": true},
+                  "analyzeSkillLevel": {"type": "boolean", "description": "Whether to analyze skill level", "default": true},
+                  "uploadThumbnail": {"type": "boolean", "description": "Whether to upload video thumbnail", "default": true},
+                  "published": {"type": "boolean", "description": "Whether to publish immediately", "default": false}
+                },
+                "required": ["youtubeUrl"]
+              }
+            },
+            {
+              "name": "skill_level_analyzer", 
+              "description": "Analyzes video content to determine skill level (beginner/intermediate/advanced)",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "title": {"type": "string", "description": "Video title"},
+                  "description": {"type": "string", "description": "Video description"},
+                  "tags": {"type": "array", "items": {"type": "string"}, "description": "Existing tags"},
+                  "videoId": {"type": "string", "description": "Video ID to update"}
+                },
+                "required": ["title", "videoId"]
+              }
+            },
+            {
+              "name": "tag_enhancer",
+              "description": "Suggests additional relevant tags based on content analysis",
+              "parameters": {
+                "type": "object", 
+                "properties": {
+                  "title": {"type": "string", "description": "Video title"},
+                  "description": {"type": "string", "description": "Video description"},
+                  "existingTags": {"type": "array", "items": {"type": "string"}, "description": "Current tags"},
+                  "videoId": {"type": "string", "description": "Video ID to update"},
+                  "createTags": {"type": "boolean", "description": "Whether to create new tags", "default": true},
+                  "confidenceThreshold": {"type": "number", "description": "Minimum confidence for suggestions", "default": 0.75}
+                },
+                "required": ["title", "videoId"]
+              }
+            },
+            {
+              "name": "quality_assessor",
+              "description": "Evaluates video quality and relevance for the community",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "videoData": {"type": "object", "description": "Complete video data object"},
+                  "communityStandards": {"type": "object", "description": "Quality thresholds and standards"}
+                },
+                "required": ["videoData"]
+              }
+            }
+          ]
+        }
+      },
+      "id": "ai-agent",
+      "name": "AI Video Curator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('ai-agent').item.json.tool_calls[0].function.name === 'create_video' ? $node.context.PAYLOAD_CMS_URL + '/api/ai-tools/create-video' : '' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $node.context.PAYLOAD_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "youtubeUrl",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.youtubeUrl }}"
+            },
+            {
+              "name": "enhanceTags", 
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.enhanceTags || true }}"
+            },
+            {
+              "name": "analyzeSkillLevel",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.analyzeSkillLevel || true }}"
+            },
+            {
+              "name": "uploadThumbnail",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.uploadThumbnail || true }}"
+            },
+            {
+              "name": "published",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.published || false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "create-video-tool",
+      "name": "Create Video Tool",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [660, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{ $node.context.PAYLOAD_CMS_URL }}/api/ai-tools/skill-level",
+        "authentication": "predefinedCredentialType", 
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $node.context.PAYLOAD_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.title }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.description || '' }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.tags || [] }}"
+            },
+            {
+              "name": "videoId",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.videoId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "skill-level-tool",
+      "name": "Skill Level Tool", 
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $node.context.PAYLOAD_CMS_URL }}/api/ai-tools/enhanced-tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth", 
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $node.context.PAYLOAD_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.title }}"
+            },
+            {
+              "name": "description", 
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.description || '' }}"
+            },
+            {
+              "name": "existingTags",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.existingTags || [] }}"
+            },
+            {
+              "name": "videoId",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.videoId }}"
+            },
+            {
+              "name": "createTags",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.createTags || true }}"
+            },
+            {
+              "name": "confidenceThreshold",
+              "value": "={{ $('ai-agent').item.json.tool_calls[0].function.arguments.confidenceThreshold || 0.75 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tag-enhancer-tool",
+      "name": "Tag Enhancer Tool",
+      "type": "n8n-nodes-base.httpRequest", 
+      "typeVersion": 4,
+      "position": [660, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "create_video",
+              "leftValue": "={{ $('ai-agent').item.json.tool_calls[0].function.name }}",
+              "rightValue": "create_video",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "skill_level_analyzer", 
+              "leftValue": "={{ $('ai-agent').item.json.tool_calls[0].function.name }}",
+              "rightValue": "skill_level_analyzer",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "tag_enhancer",
+              "leftValue": "={{ $('ai-agent').item.json.tool_calls[0].function.name }}",
+              "rightValue": "tag_enhancer", 
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "tool-router",
+      "name": "Tool Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [460, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [860, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Video Curator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Video Curator": {
+      "main": [
+        [
+          {
+            "node": "Tool Router", 
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool Router": {
+      "main": [
+        [
+          {
+            "node": "Create Video Tool",
+            "type": "main", 
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skill Level Tool",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tag Enhancer Tool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Video Tool": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skill Level Tool": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main", 
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag Enhancer Tool": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-01-26T00:00:00.000Z",
+  "id": "video-curation-agent",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-01-26T00:00:00.000Z",
+      "id": "ai-agent",
+      "name": "AI Agent",
+      "updatedAt": "2025-01-26T00:00:00.000Z"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-26T00:00:00.000Z",
+  "versionId": "1"
+}

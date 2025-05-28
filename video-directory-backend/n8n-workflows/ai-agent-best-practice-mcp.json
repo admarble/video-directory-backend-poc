@@ -1,0 +1,167 @@
+{
+  "name": "AI Video Agent - Best Practice with MCP Client",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "video-agent-mcp-v2",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "When webhook received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "video-agent-mcp-v2"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "options": {
+          "temperature": 0.3,
+          "maxTokens": 2000
+        },
+        "systemMessage": "You are a specialized AI assistant for video content curation in a developer community.\n\n**Your Tools:**\n- create_video_from_youtube: Process YouTube URLs with AI enhancements\n- get_video_details: Retrieve video information by ID\n- update_video_fields: Modify video metadata and settings\n- search_videos: Find videos using text queries\n- analyze_skill_level: Determine content difficulty level\n- enhance_tags: Generate AI-powered tag suggestions\n\n**Guidelines:**\n1. Always validate YouTube URLs before processing\n2. Use skill levels: beginner, intermediate, advanced\n3. Be conservative about auto-publishing (default: false)\n4. Provide clear explanations of actions taken\n5. Suggest relevant tags and categories\n6. Focus on quality content curation\n\n**Example Workflows:**\n- \"Process this video: [URL]\" → Use create_video_from_youtube\n- \"Find React tutorials\" → Use search_videos\n- \"Update video ABC123 to published\" → Use update_video_fields\n\nAlways explain what you're doing and why."
+      },
+      "id": "ai-agent",
+      "name": "Video Curator Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "{{ $vars.VIDEO_DIRECTORY_MCP_ENDPOINT }}",
+        "authentication": "bearerAuth",
+        "toolsToInclude": "all"
+      },
+      "id": "video-directory-mcp-client",
+      "name": "Video Directory MCP Client",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [400, 200],
+      "credentials": {
+        "mcpBearerTokenAuth": {
+          "id": "video-directory-mcp-auth",
+          "name": "Video Directory MCP Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "id": "openai-chat-model",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [400, 400],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-api-key",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdTemplate": "video-agent-{{ $json.userId || 'anonymous' }}"
+      },
+      "id": "simple-memory",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1,
+      "position": [600, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [800, 300]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When webhook received": {
+      "main": [
+        [
+          {
+            "node": "Video Curator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Curator Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Directory MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Video Curator Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Video Curator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Video Curator Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "name": "AI Agent",
+      "id": "ai-agent"
+    },
+    {
+      "name": "MCP Client",
+      "id": "mcp-client"
+    }
+  ]
+}

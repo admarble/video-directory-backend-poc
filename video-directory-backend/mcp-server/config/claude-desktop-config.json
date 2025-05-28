@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "video-directory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "supergateway",
+        "--sse",
+        "https://your-n8n-instance.com/webhook/mcp/your-bearer-token"
+      ],
+      "env": {
+        "MCP_SERVER_NAME": "Video Directory Server"
+      }
+    }
+  },
+  "globalShortcut": "CommandOrControl+Shift+Space"
+}

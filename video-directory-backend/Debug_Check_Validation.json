@@ -1,0 +1,17 @@
+{
+  "name": "Debug Check Validation",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Debug the success value\nconst input = $input.all()[0].json;\n\nconsole.log('Full input:', JSON.stringify(input, null, 2));\nconsole.log('Success value:', input.success);\nconsole.log('Success type:', typeof input.success);\nconsole.log('Success === true:', input.success === true);\nconsole.log('Success == true:', input.success == true);\n\nreturn [{\n  json: {\n    originalInput: input,\n    successValue: input.success,\n    successType: typeof input.success,\n    strictEquality: input.success === true,\n    looseEquality: input.success == true,\n    shouldProceed: input.success === true\n  }\n}];"
+      },
+      "id": "debug-node",
+      "name": "Debug Success Value",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [0, 0]
+    }
+  ],
+  "connections": {},
+  "active": false
+}

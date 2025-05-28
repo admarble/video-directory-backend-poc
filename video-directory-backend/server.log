@@ -8,22 +8,327 @@
    - Environments: .env
 
  ✓ Starting...
- ⚠ The config property `experimental.turbo` is deprecated. Move this setting to `config.turbopack` as Turbopack is now stable.
- ✓ Ready in 1487ms
+ ✓ Ready in 2.4s
  ○ Compiling /admin/[[...segments]] ...
- ⨯ ./node_modules/@payloadcms/ui/dist/exports/client/index.js
-Attempted import error: 'hoistQueryParamsToAnd' is not exported from 'payload/shared' (imported as 'kL').
-
-Import trace for requested module:
-./node_modules/@payloadcms/ui/dist/exports/client/index.js
- ⨯ ./node_modules/@payloadcms/ui/dist/exports/client/index.js
-Attempted import error: 'hoistQueryParamsToAnd' is not exported from 'payload/shared' (imported as 'kL').
-
-Import trace for requested module:
-./node_modules/@payloadcms/ui/dist/exports/client/index.js
- ⨯ ./node_modules/@payloadcms/ui/dist/exports/client/index.js
-Attempted import error: 'hoistQueryParamsToAnd' is not exported from 'payload/shared' (imported as 'kL').
-
-Import trace for requested module:
-./node_modules/@payloadcms/ui/dist/exports/client/index.js
- GET /admin/collections/videos/create 500 in 12873ms
+ ✓ Compiled /admin/[[...segments]] in 10.2s (4991 modules)
+ GET /admin/collections/videos/create 200 in 14116ms
+ ○ Compiling /api/[...slug] ...
+ ✓ Compiled /api/[...slug] in 2.9s (5052 modules)
+ GET /api/users/me 200 in 4448ms
+ GET /api/payload-preferences/nav 200 in 4335ms
+ GET /api/payload-preferences/undefined 200 in 29ms
+ POST /admin/collections/videos/create 200 in 161ms
+ ○ Compiling /api/youtube ...
+ ✓ Compiled /api/youtube in 965ms (5067 modules)
+ GET /api/youtube?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D2RlBb4C_XwI&uploadThumbnail=true 200 in 1642ms
+ POST /api/media 200 in 46ms
+ ○ Compiling /api/categories ...
+ ✓ Compiled /api/categories in 1297ms (5069 modules)
+ POST /api/creators 200 in 1998ms
+ POST /api/categories 405 in 2009ms
+ GET /api/media/file/how-to-make-accurate-ui-tweak-in-cursor-with-stagewise-thumbnail-87079f54.jpg 200 in 2124ms
+ POST /admin/collections/videos/create 200 in 1481ms
+[16:46:42] [31mERROR[39m: [36mMaximum call stack size exceeded[39m
+    err: {
+      "type": "RangeError",
+      "message": "Maximum call stack size exceeded",
+      "stack":
+          RangeError: Maximum call stack size exceeded
+              at eval (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:109:26)
+              at Array.map (<anonymous>)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:109:22)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+    }
+ POST /api/videos?depth=0&fallback-locale=null 500 in 66ms
+ ✓ Compiled in 2.9s (4887 modules)
+ GET /admin/collections/videos/create 200 in 1357ms
+ ○ Compiling /api/[...slug] ...
+ ✓ Compiled /api/[...slug] in 866ms (3898 modules)
+ GET /api/users/me 200 in 1272ms
+ GET /api/payload-preferences/nav 200 in 1171ms
+ GET /api/payload-preferences/undefined 200 in 24ms
+ POST /admin/collections/videos/create 200 in 190ms
+ ○ Compiling /api/youtube ...
+ ✓ Compiled /api/youtube in 612ms (3913 modules)
+ GET /api/youtube?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D2RlBb4C_XwI&uploadThumbnail=true 200 in 1287ms
+ ○ Compiling /api/categories ...
+ ✓ Compiled /api/categories in 747ms (3915 modules)
+ POST /api/categories 405 in 1837ms
+ POST /api/creators 200 in 1846ms
+ POST /api/media 200 in 1852ms
+ POST /admin/collections/videos/create 200 in 2614ms
+ GET /api/media/file/how-to-make-accurate-ui-tweak-in-cursor-with-stagewise-thumbnail-0350ea6d.jpg 200 in 73ms
+[16:49:53] [31mERROR[39m: [36mMaximum call stack size exceeded[39m
+    err: {
+      "type": "RangeError",
+      "message": "Maximum call stack size exceeded",
+      "stack":
+          RangeError: Maximum call stack size exceeded
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:105:34)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+    }
+ POST /api/videos?depth=0&fallback-locale=null 500 in 162ms
+ GET /admin/collections/videos/create 200 in 712ms
+ GET /api/users/me 200 in 58ms
+ GET /api/payload-preferences/nav 200 in 32ms
+ GET /api/payload-preferences/undefined 200 in 17ms
+ POST /admin/collections/videos/create 200 in 22ms
+ POST /admin/collections/videos/create 200 in 76ms
+ POST /admin/collections/videos/create 200 in 15ms
+ POST /admin/collections/videos/create 200 in 77ms
+[16:50:32] [31mERROR[39m: [36mMaximum call stack size exceeded[39m
+    err: {
+      "type": "RangeError",
+      "message": "Maximum call stack size exceeded",
+      "stack":
+          RangeError: Maximum call stack size exceeded
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:105:34)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+    }
+ POST /api/videos?depth=0&fallback-locale=null 500 in 143ms
+ GET /admin/collections/creators/create 200 in 308ms
+ GET /api/users/me 200 in 59ms
+ GET /api/payload-preferences/nav 200 in 53ms
+ GET /api/payload-preferences/undefined 200 in 18ms
+ POST /admin/collections/creators/create 200 in 17ms
+ POST /admin/collections/creators/create 200 in 12ms
+ POST /api/creators?depth=0&fallback-locale=null 201 in 68ms
+ GET /admin/collections/creators/68323f446f80e6ddf625fb35 200 in 141ms
+ ✓ Compiled in 2.4s (3898 modules)
+Generating import map
+No new imports found, skipping writing import map
+ GET /admin/collections/creators/68323f446f80e6ddf625fb35 200 in 997ms
+ GET /admin/collections/videos/create 200 in 802ms
+ GET /api/users/me 200 in 127ms
+ GET /api/payload-preferences/nav 200 in 37ms
+ GET /api/payload-preferences/undefined 200 in 20ms
+ POST /admin/collections/videos/create 200 in 23ms
+ POST /admin/collections/videos/create 200 in 15ms
+ POST /admin/collections/videos/create 200 in 19ms
+ POST /admin/collections/videos/create 200 in 51ms
+ POST /api/videos?depth=0&fallback-locale=null 201 in 93ms
+ GET /admin/collections/videos/68323f7f6f80e6ddf625fb54 200 in 107ms
+ ✓ Compiled in 737ms (3898 modules)
+Generating import map
+No new imports found, skipping writing import map
+ GET /admin/collections/videos/68323f7f6f80e6ddf625fb54 200 in 678ms
+ GET /admin/collections/videos/create 200 in 616ms
+ GET /api/users/me 200 in 142ms
+ GET /api/payload-preferences/nav 200 in 34ms
+ GET /api/payload-preferences/undefined 200 in 16ms
+ POST /admin/collections/videos/create 200 in 22ms
+ ○ Compiling /api/youtube ...
+ ✓ Compiled /api/youtube in 777ms (3913 modules)
+ GET /api/youtube?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D2RlBb4C_XwI&uploadThumbnail=true 200 in 1517ms
+ POST /api/media 200 in 121ms
+ ○ Compiling /api/categories ...
+ ✓ Compiled /api/categories in 1106ms (3915 modules)
+ POST /api/creators 200 in 2045ms
+ POST /api/categories 405 in 2068ms
+ GET /api/media/file/how-to-make-accurate-ui-tweak-in-cursor-with-stagewise-thumbnail-9f5e9427.jpg 200 in 2287ms
+ POST /admin/collections/videos/create 200 in 2164ms
+[16:53:10] [31mERROR[39m: [36mMaximum call stack size exceeded[39m
+    err: {
+      "type": "RangeError",
+      "message": "Maximum call stack size exceeded",
+      "stack":
+          RangeError: Maximum call stack size exceeded
+              at eval (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:109:26)
+              at Array.map (<anonymous>)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:109:22)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+              at deepCopyObjectSimple (webpack-internal:///(rsc)/./node_modules/payload/dist/utilities/deepCopyObject.js:120:64)
+    }
+ POST /api/videos?depth=0&fallback-locale=null 500 in 124ms
+ ✓ Compiled in 1290ms (3733 modules)
+Generating import map
+No new imports found, skipping writing import map
+ GET /admin/collections/videos/create 200 in 660ms
+[?25h

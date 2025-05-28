@@ -1,0 +1,333 @@
+{
+  "name": "Video Directory MCP Server - Best Practice Architecture",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "bearerAuth",
+        "path": "video-directory-mcp"
+      },
+      "id": "mcp-server-trigger-main",
+      "name": "MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [300, 400],
+      "webhookId": "video-directory-mcp-server"
+    },
+    {
+      "parameters": {
+        "url": "http://host.docker.internal:3001/api/ai-tools/create-video",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "youtubeUrl",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('youtubeUrl', 'YouTube URL to process', 'string') }}"
+            },
+            {
+              "name": "enhanceTags",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('enhanceTags', 'Enable AI tag enhancement', 'boolean') || true }}"
+            },
+            {
+              "name": "analyzeSkillLevel",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('analyzeSkillLevel', 'Enable skill level analysis', 'boolean') || true }}"
+            },
+            {
+              "name": "uploadThumbnail",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('uploadThumbnail', 'Download and store thumbnail', 'boolean') || true }}"
+            },
+            {
+              "name": "published",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('published', 'Auto-publish video', 'boolean') || false }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "create-video-from-youtube-tool",
+      "name": "Create Video from YouTube",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 1,
+      "position": [100, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "payload-cms-auth",
+          "name": "Payload CMS Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://host.docker.internal:3001/api/videos/{{ /*n8n-auto-generated-fromAI-override*/ $fromAI('videoId', 'Video ID to retrieve', 'string') }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "get-video-details-tool", 
+      "name": "Get Video Details",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 1,
+      "position": [300, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "payload-cms-auth",
+          "name": "Payload CMS Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "http://host.docker.internal:3001/api/videos/{{ /*n8n-auto-generated-fromAI-override*/ $fromAI('videoId', 'Video ID to update', 'string') }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', 'New video title', 'string') }}"
+            },
+            {
+              "name": "description", 
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', 'New video description', 'string') }}"
+            },
+            {
+              "name": "published",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('published', 'Publishing status', 'boolean') }}"
+            },
+            {
+              "name": "skillLevel",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('skillLevel', 'Skill level (beginner/intermediate/advanced)', 'string') }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "update-video-fields-tool",
+      "name": "Update Video Fields",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 1,
+      "position": [500, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "payload-cms-auth",
+          "name": "Payload CMS Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://host.docker.internal:3001/api/videos",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "where[or][0][title][contains]",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', 'Search query for video titles and descriptions', 'string') }}"
+            },
+            {
+              "name": "where[or][1][description][contains]", 
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', 'Search query for video titles and descriptions', 'string') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('limit', 'Maximum number of results', 'number') || 10 }}"
+            },
+            {
+              "name": "page",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('page', 'Page number', 'number') || 1 }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "search-videos-tool",
+      "name": "Search Videos",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 1,
+      "position": [700, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "payload-cms-auth",
+          "name": "Payload CMS Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://host.docker.internal:3001/api/ai-tools/skill-level",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', 'Video title to analyze', 'string') }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', 'Video description content', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tags', 'Existing tags array', 'array') || [] }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "id": "analyze-skill-level-tool",
+      "name": "Analyze Skill Level",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 1,
+      "position": [100, 600],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "payload-cms-auth",
+          "name": "Payload CMS Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://host.docker.internal:3001/api/ai-tools/enhanced-tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', 'Video title for tag analysis', 'string') }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', 'Video description content', 'string') }}"
+            },
+            {
+              "name": "existingTags",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('existingTags', 'Current tags array', 'array') || [] }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "id": "enhance-tags-tool",
+      "name": "Enhance Tags",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 1,
+      "position": [300, 600],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "payload-cms-auth",
+          "name": "Payload CMS Auth"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Create Video from YouTube": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video Details": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Video Fields": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Videos": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Skill Level": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhance Tags": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "name": "MCP Server",
+      "id": "mcp-server"
+    }
+  ]
+}

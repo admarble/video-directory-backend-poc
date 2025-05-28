@@ -9,6 +9,7 @@ import sharp from 'sharp'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 
 import { Users } from './collections/Users'
+import { AutomationUsers } from './collections/AutomationUsers'
 import { Media } from './collections/Media'
 import { Videos } from './collections/Videos'
 import { Categories } from './collections/Categories'
@@ -43,7 +44,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Videos, Categories, Tags, Creators],
+  collections: [Users, AutomationUsers, Media, Videos, Categories, Tags, Creators],
   globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

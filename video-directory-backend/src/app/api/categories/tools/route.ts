@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayloadClient } from '../../../../getPayload'
+import { getPayloadClient } from '@/getPayload'
 
 export async function GET() {
   try {

@@ -1,0 +1,315 @@
+{
+  "name": "Create Video Tool - Fixed",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Extract and validate input parameters\nconst input = $input.all()[0].json;\nconst youtubeUrl = input.youtubeUrl;\nconst options = input.options || {};\n\n// Validate YouTube URL\nif (!youtubeUrl || typeof youtubeUrl !== 'string') {\n  return [{\n    json: {\n      error: 'YouTube URL is required and must be a string',\n      success: false\n    }\n  }];\n}\n\n// YouTube URL validation regex\nconst youtubeRegex = /^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.be)\\/.+/;\nif (!youtubeRegex.test(youtubeUrl)) {\n  return [{\n    json: {\n      error: 'Invalid YouTube URL format',\n      success: false\n    }\n  }];\n}\n\n// Prepare the request payload\nconst payload = {\n  youtubeUrl: youtubeUrl,\n  enhanceTags: options.enhanceTags !== false, // default true\n  analyzeSkillLevel: options.analyzeSkillLevel !== false, // default true\n  uploadThumbnail: options.uploadThumbnail !== false, // default true\n  published: options.published === true // default false\n};\n\nreturn [{\n  json: {\n    payload: payload,\n    success: true\n  }\n}];"
+      },
+      "id": "0009901a-5aa8-4694-b87c-fdb499c877da",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "success-check",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "595945c8-008a-443f-8784-a027a8f3526f",
+      "name": "Check Validation",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -360,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3001/api/ai-tools/create-video",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "youtubeUrl",
+              "value": "={{ $json.payload.youtubeUrl }}"
+            },
+            {
+              "name": "enhanceTags",
+              "value": "={{ $json.payload.enhanceTags }}"
+            },
+            {
+              "name": "analyzeSkillLevel",
+              "value": "={{ $json.payload.analyzeSkillLevel }}"
+            },
+            {
+              "name": "uploadThumbnail",
+              "value": "={{ $json.payload.uploadThumbnail }}"
+            },
+            {
+              "name": "published",
+              "value": "={{ $json.payload.published }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "184fffb2-42b8-4609-bc06-e7d68e8bd73c",
+      "name": "Call Create Video API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -160,
+        140
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tvjiINHFuzXGftOb",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": "={{ $json.success === true }}",
+              "type": "boolean"
+            },
+            {
+              "id": "video",
+              "name": "video",
+              "value": "={{ $json.video }}",
+              "type": "object"
+            },
+            {
+              "id": "videoId",
+              "name": "videoId",
+              "value": "={{ $json.videoId }}",
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "Video created successfully with AI enhancements",
+              "type": "string"
+            },
+            {
+              "id": "processing",
+              "name": "processing",
+              "value": "={{ $json.processing }}",
+              "type": "object"
+            },
+            {
+              "id": "published",
+              "name": "published",
+              "value": "={{ $json.video?.published || false }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "98f363de-3213-4f50-becc-f1e6e33f053f",
+      "name": "Format Success Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        40,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "error",
+              "name": "error",
+              "value": "={{ $json.error || 'API request failed' }}",
+              "type": "string"
+            },
+            {
+              "id": "details",
+              "name": "details",
+              "value": "={{ $json.details || 'No additional details available' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1f2a8497-a2ea-4562-ad0a-9f22ce0e9ed7",
+      "name": "Format API Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        60,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "error",
+              "name": "error",
+              "value": "={{ $json.error }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f9c31a28-966a-4d60-b336-bba01b3e706e",
+      "name": "Format Validation Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "events": [
+          "activate"
+        ]
+      },
+      "type": "n8n-nodes-base.n8nTrigger",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        240
+      ],
+      "id": "aa9e3a34-8aad-445e-af97-cab5164d4be2",
+      "name": "n8n Trigger"
+    }
+  ],
+  "pinData": {
+    "n8n Trigger": [
+      {
+        "json": {
+          "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          "options": {
+            "enhanceTags": true,
+            "analyzeSkillLevel": true,
+            "uploadThumbnail": true,
+            "published": false
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Check Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Validation": {
+      "main": [
+        [
+          {
+            "node": "Call Create Video API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Validation Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Create Video API": {
+      "main": [
+        [
+          {
+            "node": "Format Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0b607319-4a3f-4982-bb37-93d011550010",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9125619463bed84e2ab17f1e92bd044991b76888074fd02d2abda5462af1597e"
+  },
+  "id": "pE7cmNjRxBcfZZFY",
+  "tags": []
+}

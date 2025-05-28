@@ -1,0 +1,65 @@
+name: Performance Monitoring
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    name: Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            ${{ vars.PRODUCTION_URL }}
+            ${{ vars.PRODUCTION_URL }}/api/health
+          configPath: './lighthouse.config.js'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  load-test:
+    name: Load Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run load tests
+        run: |
+          # Install artillery for load testing
+          npm install -g artillery
+          
+          # Create basic load test config
+          cat > load-test.yml << 'EOL'
+          config:
+            target: ${{ vars.PRODUCTION_URL }}
+            phases:
+              - duration: 60
+                arrivalRate: 5
+              - duration: 120
+                arrivalRate: 10
+          scenarios:
+            - name: "API Health Check"
+              requests:
+                - get:
+                    url: "/api/health"
+            - name: "Get Videos"
+              requests:
+                - get:
+                    url: "/api/videos?limit=10"
+            - name: "Search Videos"
+              requests:
+                - get:
+                    url: "/api/search/advanced?q=javascript"
+          EOL
+          
+          # Run load test
+          artillery run load-test.yml

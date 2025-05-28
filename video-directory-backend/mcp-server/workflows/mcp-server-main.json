@@ -1,0 +1,161 @@
+{
+  "name": "Video Directory MCP Server",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "generic",
+        "genericAuthType": "bearerToken",
+        "exposedWorkflows": "include",
+        "workflowsToInclude": []
+      },
+      "id": "mcp-server-trigger-main",
+      "name": "MCP Server Trigger",
+      "type": "n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [100, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "{{ $('MCP Server Trigger').item.json.toolName === 'create_video_from_youtube' ? 'CREATE_VIDEO_WORKFLOW_ID' : '' }}",
+        "source": "parameter",
+        "parameters": {
+          "youtubeUrl": "={{ $('MCP Server Trigger').item.json.arguments.youtubeUrl }}",
+          "options": "={{ $('MCP Server Trigger').item.json.arguments.options || {} }}"
+        }
+      },
+      "id": "create-video-tool",
+      "name": "Create Video Tool",
+      "type": "n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [300, 100]
+    },
+    {
+      "parameters": {
+        "workflowId": "{{ $('MCP Server Trigger').item.json.toolName === 'get_video_details' ? 'GET_VIDEO_WORKFLOW_ID' : '' }}",
+        "source": "parameter",
+        "parameters": {
+          "videoId": "={{ $('MCP Server Trigger').item.json.arguments.videoId }}"
+        }
+      },
+      "id": "get-video-tool",
+      "name": "Get Video Tool",
+      "type": "n8n-nodes-langchain.toolWorkflow", 
+      "typeVersion": 1,
+      "position": [300, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "{{ $('MCP Server Trigger').item.json.toolName === 'update_video_fields' ? 'UPDATE_VIDEO_WORKFLOW_ID' : '' }}",
+        "source": "parameter",
+        "parameters": {
+          "videoId": "={{ $('MCP Server Trigger').item.json.arguments.videoId }}",
+          "updates": "={{ $('MCP Server Trigger').item.json.arguments.updates }}"
+        }
+      },
+      "id": "update-video-tool",
+      "name": "Update Video Tool",
+      "type": "n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "{{ $('MCP Server Trigger').item.json.toolName === 'search_videos' ? 'SEARCH_VIDEOS_WORKFLOW_ID' : '' }}",
+        "source": "parameter",
+        "parameters": {
+          "query": "={{ $('MCP Server Trigger').item.json.arguments.query }}",
+          "filters": "={{ $('MCP Server Trigger').item.json.arguments.filters || {} }}"
+        }
+      },
+      "id": "search-videos-tool",
+      "name": "Search Videos Tool",
+      "type": "n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [300, 400]
+    },
+    {
+      "parameters": {
+        "workflowId": "{{ $('MCP Server Trigger').item.json.toolName === 'analyze_skill_level' ? 'ANALYZE_SKILL_WORKFLOW_ID' : '' }}",
+        "source": "parameter",
+        "parameters": {
+          "title": "={{ $('MCP Server Trigger').item.json.arguments.title }}",
+          "description": "={{ $('MCP Server Trigger').item.json.arguments.description }}",
+          "tags": "={{ $('MCP Server Trigger').item.json.arguments.tags || [] }}"
+        }
+      },
+      "id": "analyze-skill-tool",
+      "name": "Analyze Skill Level Tool",
+      "type": "n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [300, 500]
+    },
+    {
+      "parameters": {
+        "workflowId": "{{ $('MCP Server Trigger').item.json.toolName === 'enhance_tags' ? 'ENHANCE_TAGS_WORKFLOW_ID' : '' }}",
+        "source": "parameter",
+        "parameters": {
+          "title": "={{ $('MCP Server Trigger').item.json.arguments.title }}",
+          "description": "={{ $('MCP Server Trigger').item.json.arguments.description }}",
+          "existingTags": "={{ $('MCP Server Trigger').item.json.arguments.existingTags || [] }}"
+        }
+      },
+      "id": "enhance-tags-tool",
+      "name": "Enhance Tags Tool",
+      "type": "n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [300, 600]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "MCP Server Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create Video Tool",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Video Tool", 
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Video Tool",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search Videos Tool",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Analyze Skill Level Tool",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Enhance Tags Tool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "name": "MCP Server",
+      "id": "mcp-server"
+    }
+  ]
+}

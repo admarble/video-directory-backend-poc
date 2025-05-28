@@ -1,0 +1,8 @@
+{
+  "parameters": {
+    "jsCode": "// Simple validation check and routing\nconst input = $input.all()[0].json;\n\nif (input.success === true) {\n  // Success path - pass the data to API call\n  return [input];\n} else {\n  // Error path - format error response  \n  return [{\n    json: {\n      success: false,\n      error: input.error || 'Validation failed'\n    }\n  }];\n}"
+  },
+  "name": "Route Based on Validation",
+  "type": "n8n-nodes-base.code",
+  "typeVersion": 2
+}

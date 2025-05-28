@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
-import { getPayloadClient } from '../../../../../../getPayload'
+import { getPayloadClient } from '@/getPayload'
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const payload = await getPayloadClient()
-    const { id } = params
+    const { id } = await params
 
     // Get current video
     const video = await payload.findByID({

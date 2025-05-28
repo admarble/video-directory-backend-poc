@@ -1,0 +1,144 @@
+{
+  "name": "AI Video Agent with MCP Client - 2025",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "video-agent-mcp",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "options": {
+          "temperature": 0.3,
+          "maxTokens": 2000
+        },
+        "systemMessage": "You are an AI assistant specialized in video content curation for a developer/indie hacker community. You have access to powerful video management tools through MCP.\n\nYour capabilities include:\n- Creating video entries from YouTube URLs with AI enhancement\n- Searching and retrieving video content\n- Updating video metadata and settings\n- Analyzing skill levels and enhancing tags\n\nAlways:\n1. Validate YouTube URLs before processing\n2. Provide clear explanations of actions taken\n3. Use appropriate skill levels (beginner/intermediate/advanced)\n4. Suggest relevant tags and categories\n5. Make thoughtful decisions about publishing vs. drafts\n\nBe helpful, thorough, and focused on quality content curation.",
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "{{ $json.query || $json.message || 'Process the provided content' }}\n\nRequest data: {{ JSON.stringify($json) }}"
+            }
+          ]
+        }
+      },
+      "id": "ai-agent",
+      "name": "AI Video Curator Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "{{ $vars.MCP_SERVER_SSE_ENDPOINT }}",
+        "authentication": "bearerAuth",
+        "toolsToInclude": "all"
+      },
+      "id": "mcp-client-tool",
+      "name": "Video Directory MCP Client",
+      "type": "n8n-nodes-langchain.toolMcp",
+      "typeVersion": 1,
+      "position": [300, 200],
+      "credentials": {
+        "mcpBearerTokenAuth": {
+          "id": "mcp-server-auth",
+          "name": "MCP Server Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process and format the AI agent response\nconst input = $input.all()[0].json;\n\n// Extract the response content\nconst response = input.response || input.text || input.content || '';\nconst toolCalls = input.tool_calls || [];\n\n// Format successful response\nreturn [{\n  json: {\n    success: true,\n    message: response,\n    toolCalls: toolCalls.length,\n    timestamp: new Date().toISOString(),\n    agent: 'video-curator-mcp'\n  }\n}];"
+      },
+      "id": "format-response",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response", 
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [800, 300]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Video Curator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Video Curator Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Directory MCP Client": {
+      "main": [
+        [
+          {
+            "node": "AI Video Curator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "name": "AI Agent",
+      "id": "ai-agent"
+    },
+    {
+      "name": "MCP Client", 
+      "id": "mcp-client"
+    }
+  ]
+}

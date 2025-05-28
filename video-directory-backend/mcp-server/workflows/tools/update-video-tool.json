@@ -1,0 +1,228 @@
+{
+  "name": "Update Video Fields Tool",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Extract and validate input parameters\nconst input = $input.all()[0].json;\nconst videoId = input.videoId;\nconst updates = input.updates;\n\n// Validate video ID\nif (!videoId || typeof videoId !== 'string') {\n  return [{\n    json: {\n      error: 'Video ID is required and must be a string',\n      success: false\n    }\n  }];\n}\n\n// Validate updates object\nif (!updates || typeof updates !== 'object') {\n  return [{\n    json: {\n      error: 'Updates object is required',\n      success: false\n    }\n  }];\n}\n\n// Check if there are any updates to apply\nif (Object.keys(updates).length === 0) {\n  return [{\n    json: {\n      error: 'At least one field update is required',\n      success: false\n    }\n  }];\n}\n\n// Allowed fields for updates (security measure)\nconst allowedFields = [\n  'title', 'description', 'published', 'tags', 'categories',\n  'skillLevel', 'duration', 'notes', 'featured'\n];\n\n// Filter to only allowed fields\nconst filteredUpdates = {};\nfor (const [key, value] of Object.entries(updates)) {\n  if (allowedFields.includes(key)) {\n    filteredUpdates[key] = value;\n  }\n}\n\nif (Object.keys(filteredUpdates).length === 0) {\n  return [{\n    json: {\n      error: 'No valid fields provided for update. Allowed fields: ' + allowedFields.join(', '),\n      success: false\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    videoId: videoId,\n    updates: filteredUpdates,\n    success: true\n  }\n}];"
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [200, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "success-check",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-validation",
+      "name": "Check Validation",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [400, 200]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "http://host.docker.internal:3001/api/videos/{{ $json.videoId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "sendBody": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{}",
+        "sendQuery": false,
+        "bodyContentType": "json",
+        "jsonBody": "={{ JSON.stringify($json.updates) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "update-video-api",
+      "name": "Update Video API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [600, 100],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "payload-cms-auth",
+          "name": "Payload CMS Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "video",
+              "name": "video",
+              "value": "={{ $json }}",
+              "type": "object"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "Video updated successfully",
+              "type": "string"
+            },
+            {
+              "id": "updatedFields",
+              "name": "updatedFields",
+              "value": "={{ Object.keys($('Validate Input').item.json.updates) }}",
+              "type": "array"
+            }
+          ]
+        }
+      },
+      "id": "format-success-response",
+      "name": "Format Success Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [800, 100]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "error",
+              "name": "error",
+              "value": "Failed to update video",
+              "type": "string"
+            },
+            {
+              "id": "details",
+              "name": "details",
+              "value": "={{ $json.message || 'Update operation failed' }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "format-api-error",
+      "name": "Format API Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [800, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "error",
+              "name": "error",
+              "value": "={{ $json.error }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "format-validation-error",
+      "name": "Format Validation Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [600, 300]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Check Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Validation": {
+      "main": [
+        [
+          {
+            "node": "Update Video API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Validation Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Video API": {
+      "main": [
+        [
+          {
+            "node": "Format Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format API Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "name": "MCP Tool",
+      "id": "mcp-tool"
+    }
+  ]
+}

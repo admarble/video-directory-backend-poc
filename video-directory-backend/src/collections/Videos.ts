@@ -10,7 +10,7 @@ export const Videos: CollectionConfig = {
     create: ({ req: { user } }) => {
       // Allow automation users with write permission
       if (user?.collection === 'automation-users') {
-        return user?.isActive && (user?.permissions === 'video-readwrite' || user?.permissions === 'video-full')
+        return !!(user?.isActive && (user?.permissions === 'video-readwrite' || user?.permissions === 'video-full'))
       }
       // Allow regular authenticated users
       return !!user
@@ -19,7 +19,7 @@ export const Videos: CollectionConfig = {
     read: ({ req: { user } }) => {
       // Allow automation users with any permission
       if (user?.collection === 'automation-users') {
-        return user?.isActive
+        return !!(user?.isActive)
       }
       // If regular user is authenticated, allow access to all videos
       if (user) return true
@@ -30,7 +30,7 @@ export const Videos: CollectionConfig = {
     update: ({ req: { user } }) => {
       // Allow automation users with write permission
       if (user?.collection === 'automation-users') {
-        return user?.isActive && (user?.permissions === 'video-readwrite' || user?.permissions === 'video-full')
+        return !!(user?.isActive && (user?.permissions === 'video-readwrite' || user?.permissions === 'video-full'))
       }
       // Allow regular authenticated users
       return !!user
@@ -39,7 +39,7 @@ export const Videos: CollectionConfig = {
     delete: ({ req: { user } }) => {
       // Restrict automation users to full permission only for deletes
       if (user?.collection === 'automation-users') {
-        return user?.isActive && user?.permissions === 'video-full'
+        return !!(user?.isActive && user?.permissions === 'video-full')
       }
       // Allow regular authenticated users
       return !!user

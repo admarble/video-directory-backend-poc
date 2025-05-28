@@ -64,10 +64,12 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    'automation-users': AutomationUserAuthOperations;
   };
   blocks: {};
   collections: {
     users: User;
+    'automation-users': AutomationUser;
     media: Media;
     videos: Video;
     categories: Category;
@@ -80,6 +82,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    'automation-users': AutomationUsersSelect<false> | AutomationUsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     videos: VideosSelect<false> | VideosSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
@@ -99,9 +102,13 @@ export interface Config {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
   locale: null;
-  user: User & {
-    collection: 'users';
-  };
+  user:
+    | (User & {
+        collection: 'users';
+      })
+    | (AutomationUser & {
+        collection: 'automation-users';
+      });
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -125,12 +132,34 @@ export interface UserAuthOperations {
     password: string;
   };
 }
+export interface AutomationUserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: string;
+  /**
+   * User role for permissions
+   */
+  role: 'admin' | 'editor';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -141,6 +170,42 @@ export interface User {
   loginAttempts?: number | null;
   lockUntil?: string | null;
   password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "automation-users".
+ */
+export interface AutomationUser {
+  id: string;
+  /**
+   * Descriptive name for this automation user (e.g., "n8n Video Agent")
+   */
+  name: string;
+  /**
+   * What this automation user is for (e.g., "AI agent for video content curation")
+   */
+  purpose?: string | null;
+  /**
+   * Define what this automation user can do with videos
+   */
+  permissions?: ('video-read' | 'video-readwrite' | 'video-full') | null;
+  /**
+   * Rate limiting tier for API requests
+   */
+  rateLimitTier?: ('standard' | 'high' | 'unlimited') | null;
+  /**
+   * Whether this automation user can currently make API requests
+   */
+  isActive?: boolean | null;
+  /**
+   * Last time this automation user made an API request
+   */
+  lastUsed?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -170,7 +235,11 @@ export interface Video {
   videoUrl: string;
   title: string;
   description: string;
+  thumbnail?: (string | null) | Media;
   duration: number;
+  categories?: (string | Category)[] | null;
+  tags?: (string | Tag)[] | null;
+  creator?: (string | null) | Creator;
   published?: boolean | null;
   publishedDate?: string | null;
   /**
@@ -248,6 +317,10 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
+        relationTo: 'automation-users';
+        value: string | AutomationUser;
+      } | null)
+    | ({
         relationTo: 'media';
         value: string | Media;
       } | null)
@@ -268,10 +341,15 @@ export interface PayloadLockedDocument {
         value: string | Creator;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'automation-users';
+        value: string | AutomationUser;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -281,10 +359,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'automation-users';
+        value: string | AutomationUser;
+      };
   key?: string | null;
   value?:
     | {
@@ -314,6 +397,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -323,6 +407,23 @@ export interface UsersSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "automation-users_select".
+ */
+export interface AutomationUsersSelect<T extends boolean = true> {
+  name?: T;
+  purpose?: T;
+  permissions?: T;
+  rateLimitTier?: T;
+  isActive?: T;
+  lastUsed?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  enableAPIKey?: T;
+  apiKey?: T;
+  apiKeyIndex?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -350,7 +451,11 @@ export interface VideosSelect<T extends boolean = true> {
   videoUrl?: T;
   title?: T;
   description?: T;
+  thumbnail?: T;
   duration?: T;
+  categories?: T;
+  tags?: T;
+  creator?: T;
   published?: T;
   publishedDate?: T;
   slug?: T;
