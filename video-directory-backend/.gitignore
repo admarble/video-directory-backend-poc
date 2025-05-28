@@ -5,6 +5,12 @@
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+.pnpm-store
+
+# Docker and databases
+database.sqlite
+n8n-data/
+n8n-backups/
 
 /.idea/*
 !/.idea/runConfigurations
