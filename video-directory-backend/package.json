@@ -7,6 +7,7 @@
   "scripts": {
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev -p 3001",
+    "dev:turbo": "cross-env NODE_OPTIONS='--no-deprecation --max-old-space-size=4096' next dev -p 3001 --turbo",
     "dev:prod": "cross-env NODE_ENV=production NODE_OPTIONS=--no-deprecation next dev -p 3001",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev -p 3001",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",

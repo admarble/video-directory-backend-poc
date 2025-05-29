@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n-video-agent
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    env_file:
+      - n8n.env
+    environment:
+      # Core n8n settings
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://host.docker.internal:5678/
+      
+      # MCP/SSE specific fixes
+      - N8N_SKIP_RESPONSE_COMPRESSION=true
+      - N8N_DISABLE_GZIP=true
+      
+      # Database persistence (optional)
+      - DB_TYPE=sqlite
+      - DB_SQLITE_DATABASE=/home/node/.n8n/database.sqlite
+      
+      # Security
+      - N8N_SECURE_COOKIE=false
+      - N8N_BASIC_AUTH_ACTIVE=false
+      
+      # Payload CMS integration
+      - PAYLOAD_CMS_URL=http://host.docker.internal:3001
+      - PAYLOAD_API_KEY=automation-users API-Key d0a7e5c-f1d3-4b2e-8e83-23d9544b77d1
+      
+      # AI providers
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY:-}
+      
+      # Performance
+      - EXECUTIONS_TIMEOUT=900
+      - N8N_MAX_MEMORY_PERCENT=50
+      - N8N_LOG_LEVEL=info
+      
+      # Community packages
+      - N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
+      
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - n8n-network
+    depends_on:
+      - payload
+      - mongo
+
+  # Include your existing services
+  payload:
+    image: node:18-alpine
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/home/node/app
+      - node_modules:/home/node/app/node_modules
+    working_dir: /home/node/app/
+    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm dev"
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    networks:
+      - n8n-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    command:
+      - --storageEngine=wiredTiger
+    volumes:
+      - data:/data/db
+    logging:
+      driver: none
+    networks:
+      - n8n-network
+
+volumes:
+  data:
+  node_modules: 
+  n8n_data:
+    external: true
+
+networks:
+  n8n-network:
+    driver: bridge

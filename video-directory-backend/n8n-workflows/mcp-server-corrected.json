@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "instanceId": "your-instance-id"
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "none",
+        "path": "754ab685-0173-4eec-a996-1d56f9dc8339"
+      },
+      "id": "mcp-server-trigger",
+      "name": "MCP Server Trigger",
+      "type": "n8n-nodes-langchain.mcptrigger",
+      "typeVersion": 1,
+      "position": [
+        300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "name": "searchVideos",
+        "description": "Search for videos in the database. Required parameter: query (string). Optional: filters object with limit, page, skillLevel, topic, etc.",
+        "workflowId": "REPLACE_WITH_SEARCH_WORKFLOW_ID",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Search query string"
+            },
+            "filters": {
+              "type": "object",
+              "description": "Optional filters for search",
+              "properties": {
+                "limit": {
+                  "type": "number"
+                },
+                "page": {
+                  "type": "number"
+                },
+                "skillLevel": {
+                  "type": "string"
+                },
+                "topic": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "query"
+          ]
+        }
+      },
+      "id": "search-videos-tool",
+      "name": "Search Videos Tool",
+      "type": "n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [
+        500,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "name": "createVideo",
+        "description": "Create a new video entry. Required parameters: title (string), youtubeUrl (string).",
+        "workflowId": "REPLACE_WITH_CREATE_WORKFLOW_ID",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Video title"
+            },
+            "youtubeUrl": {
+              "type": "string",
+              "description": "YouTube URL"
+            },
+            "description": {
+              "type": "string",
+              "description": "Video description"
+            }
+          },
+          "required": [
+            "title",
+            "youtubeUrl"
+          ]
+        }
+      },
+      "id": "create-video-tool",
+      "name": "Create Video Tool",
+      "type": "n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [
+        500,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "MCP Server Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search Videos Tool",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Video Tool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1"
+}
