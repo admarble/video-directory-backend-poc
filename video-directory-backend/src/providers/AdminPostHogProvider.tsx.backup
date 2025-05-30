@@ -1,0 +1,98 @@
+'use client'
+import posthog from 'posthog-js'
+import { PostHogProvider } from 'posthog-js/react'
+import { ReactNode, useEffect } from 'react'
+
+// Initialize PostHog for admin interface
+if (typeof window !== 'undefined') {
+  const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
+  const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com'
+
+  console.log('🔍 Admin PostHog Debug Info:', {
+    keyExists: !!posthogKey,
+    keyLength: posthogKey?.length,
+    keyPrefix: posthogKey?.substring(0, 4),
+    host: posthogHost,
+    environment: process.env.NODE_ENV,
+  })
+
+  // Check if we have a valid PostHog key (not placeholder or empty)
+  if (
+    posthogKey &&
+    posthogKey !== 'your_posthog_project_key_here' &&
+    posthogKey !== 'phc_YOUR_PROJECT_KEY_HERE' &&
+    posthogKey !== 'personal_api_key' &&
+    posthogKey !== 'disabled' &&
+    !posthogKey.includes('YOUR_PROJECT_KEY') &&
+    !posthogKey.includes('PLACEHOLDER') &&
+    (posthogKey.startsWith('phc_') || posthogKey.startsWith('phx_')) &&
+    posthogKey.length > 20 // Real PostHog keys are much longer than placeholders
+  ) {
+    try {
+      posthog.init(posthogKey, {
+        api_host: posthogHost,
+        loaded: (posthog) => {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ Admin PostHog initialized successfully')
+            posthog.debug()
+          }
+
+          // Set admin context
+          posthog.identify(undefined, {
+            interface_type: 'admin',
+            admin_version: '1.0.0',
+          })
+        },
+        // Admin-specific settings
+        capture_pageview: true,
+        capture_pageleave: true,
+        disable_session_recording: false, // Enable session recordings for admin
+        // Add error handling
+        on_request_error: (failedRequest) => {
+          console.warn('⚠️ Admin PostHog Request Error:', failedRequest)
+        },
+      })
+    } catch (error) {
+      console.error('❌ Admin PostHog initialization failed:', error)
+    }
+  } else {
+    console.log(
+      '🔧 PostHog (Admin) not initialized: Please add a valid NEXT_PUBLIC_POSTHOG_KEY to .env.local',
+      { currentKey: posthogKey },
+    )
+  }
+}
+
+export function AdminPostHogProvider({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    // Track admin session start only if PostHog is initialized
+    if (typeof window !== 'undefined' && posthog && posthog.__loaded) {
+      try {
+        posthog.capture('admin_session_started', {
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+        })
+      } catch (error) {
+        console.warn('⚠️ Failed to track admin session start:', error)
+      }
+    }
+
+    // Track admin session end on page unload
+    const handleBeforeUnload = () => {
+      if (posthog && posthog.__loaded) {
+        try {
+          posthog.capture('admin_session_ended', {
+            timestamp: new Date().toISOString(),
+          })
+        } catch (error) {
+          console.warn('⚠️ Failed to track admin session end:', error)
+        }
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
+
+  return <PostHogProvider client={posthog}>{children}</PostHogProvider>
+}

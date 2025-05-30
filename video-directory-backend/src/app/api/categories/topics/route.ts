@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayloadClient } from '@/getPayload'
+import { getPayloadClient } from '../../../../getPayload'
 
 export async function GET() {
   try {
@@ -12,7 +12,7 @@ export async function GET() {
     })
 
     // Extract unique category names
-    const topics = result.docs.map(category => category.name)
+    const topics = result.docs.map(category => category.title)
 
     return NextResponse.json({
       data: topics

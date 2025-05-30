@@ -22,6 +22,8 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { AdminDashboard as AdminDashboard_2af6a0a09cf7b701bcddaddc278cefba } from '../../../components/admin/AdminDashboard'
+import { AnalyticsDashboard as AnalyticsDashboard_6009e629f9e3d6c1c52138fb20bc70c7 } from '../../../components/admin/AnalyticsDashboard'
 
 export const importMap = {
   "src/fields/YouTubeField#default": default_1c8caf3b40be58398188f0ee728445a4,
@@ -47,5 +49,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#StrikethroughFeatureClient": StrikethroughFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864
+  "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "./components/admin/AdminDashboard#AdminDashboard": AdminDashboard_2af6a0a09cf7b701bcddaddc278cefba,
+  "./components/admin/AnalyticsDashboard#AnalyticsDashboard": AnalyticsDashboard_6009e629f9e3d6c1c52138fb20bc70c7
 }

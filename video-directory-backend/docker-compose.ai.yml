@@ -45,6 +45,8 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: video-agent-postgres
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: n8n
       POSTGRES_USER: n8n
@@ -54,8 +56,6 @@ services:
     networks:
       - ai-stack
     restart: unless-stopped
-    profiles:
-      - with-db
 
   # Optional: Redis for caching and queuing
   redis:

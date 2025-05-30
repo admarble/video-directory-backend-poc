@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayloadClient } from '@/getPayload'
+import { getPayloadClient } from '../../../../getPayload'
 
 export async function GET() {
   try {
@@ -7,15 +7,12 @@ export async function GET() {
     
     const result = await payload.find({
       collection: 'tags',
-      where: {
-        type: { equals: 'tool' }
-      },
-      limit: 100, // Get all tool tags
-      sort: 'name',
+      limit: 100, // Get all tags
+      sort: 'title',
     })
 
     // Extract unique tool names
-    const tools = result.docs.map(tag => tag.name)
+    const tools = result.docs.map(tag => tag.title)
 
     return NextResponse.json({
       data: tools

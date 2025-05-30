@@ -1,0 +1,125 @@
+'use client'
+import { ReactNode, useEffect } from 'react'
+import { AdminPostHogProvider } from '@/providers/AdminPostHogProvider'
+import { useAdminAnalytics } from '@/lib/analytics/admin-posthog'
+
+interface AdminAnalyticsWrapperProps {
+  children: ReactNode
+}
+
+// Component to track admin interface usage
+function AdminEventTracker({ children }: { children: ReactNode }) {
+  const { trackAdminNavigation, trackAdminFeatureUsed, trackAdminPerformance, trackAdminError } =
+    useAdminAnalytics()
+
+  useEffect(() => {
+    // Track initial admin page load
+    trackAdminFeatureUsed('admin_panel_loaded', {
+      page: window.location.pathname,
+      user_agent: navigator.userAgent,
+    })
+
+    // Track navigation within admin
+    let previousUrl = window.location.href
+    const observer = new MutationObserver(() => {
+      const currentUrl = window.location.href
+      if (currentUrl !== previousUrl) {
+        trackAdminNavigation(previousUrl, currentUrl)
+        previousUrl = currentUrl
+      }
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    })
+
+    // Track admin interface interactions
+    const trackClickEvents = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+
+      // Track button clicks
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        const buttonText = target.textContent || target.closest('button')?.textContent
+        trackAdminFeatureUsed('admin_button_clicked', {
+          button_text: buttonText?.trim(),
+          page: window.location.pathname,
+        })
+      }
+
+      // Track link clicks
+      if (target.tagName === 'A' || target.closest('a')) {
+        const link = target.closest('a')
+        trackAdminFeatureUsed('admin_link_clicked', {
+          href: link?.href,
+          text: link?.textContent?.trim(),
+          page: window.location.pathname,
+        })
+      }
+
+      // Track form interactions
+      if (target.closest('form')) {
+        const form = target.closest('form')
+        trackAdminFeatureUsed('admin_form_interaction', {
+          form_id: form?.id,
+          element_type: target.tagName.toLowerCase(),
+          page: window.location.pathname,
+        })
+      }
+    }
+
+    // Track form submissions
+    const trackFormSubmissions = (event: Event) => {
+      const form = event.target as HTMLFormElement
+      const formData = new FormData(form)
+      const fields = Array.from(formData.keys())
+
+      trackAdminFeatureUsed('admin_form_submitted', {
+        form_id: form.id,
+        form_action: form.action,
+        field_count: fields.length,
+        page: window.location.pathname,
+      })
+    }
+
+    // Track errors
+    const trackErrors = (event: ErrorEvent) => {
+      trackAdminError('javascript_error', event.message, {
+        filename: event.filename,
+        line: event.lineno,
+        column: event.colno,
+        page: window.location.pathname,
+      })
+    }
+
+    // Add event listeners
+    document.addEventListener('click', trackClickEvents)
+    document.addEventListener('submit', trackFormSubmissions)
+    window.addEventListener('error', trackErrors)
+
+    // Track performance
+    const startTime = performance.now()
+    window.addEventListener('load', () => {
+      const loadTime = performance.now() - startTime
+      trackAdminPerformance('admin_page_load', loadTime)
+    })
+
+    return () => {
+      observer.disconnect()
+      document.removeEventListener('click', trackClickEvents)
+      document.removeEventListener('submit', trackFormSubmissions)
+      window.removeEventListener('error', trackErrors)
+    }
+  }, [trackAdminNavigation, trackAdminFeatureUsed, trackAdminPerformance, trackAdminError])
+
+  return <>{children}</>
+}
+
+// Main wrapper component
+export function AdminAnalyticsWrapper({ children }: AdminAnalyticsWrapperProps) {
+  return (
+    <AdminPostHogProvider>
+      <AdminEventTracker>{children}</AdminEventTracker>
+    </AdminPostHogProvider>
+  )
+}

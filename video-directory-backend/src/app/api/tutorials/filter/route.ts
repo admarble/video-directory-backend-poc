@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPayloadClient } from '@/getPayload';
+import type { Video, Category, Tag, Creator } from '@/payload-types';
+import type { Where } from 'payload';
 
 /**
  * Filter configuration matching the frontend
@@ -101,7 +103,7 @@ export async function GET(request: NextRequest) {
     const payload = await getPayloadClient();
     
     // Build the where clause for Payload CMS
-    const whereClause: any = {
+    const whereClause: Where = {
       published: { equals: true }
     };
 
@@ -171,25 +173,25 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform the data to match frontend expectations
-    const tutorials: TransformedTutorial[] = result.docs.map((tutorial: any) => ({
+    const tutorials: TransformedTutorial[] = result.docs.map((tutorial: Video) => ({
       id: tutorial.id,
       slug: tutorial.slug || undefined,
       youtubeId: extractYouTubeId(tutorial.videoUrl),
       youtubeUrl: tutorial.videoUrl,
       title: tutorial.title,
       description: tutorial.description,
-      channelName: typeof tutorial.creator === 'object' ? tutorial.creator?.name : undefined,
-      channelId: typeof tutorial.creator === 'object' ? tutorial.creator?.id : undefined,
+      channelName: typeof tutorial.creator === 'object' && tutorial.creator !== null ? (tutorial.creator as Creator).name : undefined,
+      channelId: typeof tutorial.creator === 'object' && tutorial.creator !== null ? (tutorial.creator as Creator).id : undefined,
       skillLevel: tutorial.skillLevel || undefined,
       tools: Array.isArray(tutorial.tags) 
-        ? tutorial.tags.map((tag: any) => typeof tag === 'string' ? tag : tag.name) 
+        ? tutorial.tags.map((tag) => typeof tag === 'string' ? tag : (tag as Tag).title) 
         : [],
       topics: Array.isArray(tutorial.categories) 
-        ? tutorial.categories.map((cat: any) => typeof cat === 'string' ? cat : cat.name) 
+        ? tutorial.categories.map((cat) => typeof cat === 'string' ? cat : (cat as Category).title) 
         : [],
       publishedAt: tutorial.publishedDate || undefined,
       duration: tutorial.duration || undefined,
-      thumbnailUrl: typeof tutorial.thumbnail === 'object' ? tutorial.thumbnail?.url : undefined,
+      thumbnailUrl: typeof tutorial.thumbnail === 'object' && tutorial.thumbnail !== null && 'url' in tutorial.thumbnail ? tutorial.thumbnail.url || undefined : undefined,
       viewCount: tutorial.views || 0,
       views: tutorial.views || 0,
       createdAt: tutorial.createdAt,

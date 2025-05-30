@@ -213,7 +213,7 @@ export interface AutomationUser {
  */
 export interface Media {
   id: string;
-  alt: string;
+  alt?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -264,7 +264,8 @@ export interface Video {
  */
 export interface Category {
   id: string;
-  name: string;
+  title: string;
+  slug: string;
   description?: string | null;
   icon?: (string | null) | Media;
   updatedAt: string;
@@ -276,12 +277,13 @@ export interface Category {
  */
 export interface Tag {
   id: string;
-  name: string;
-  description?: string | null;
+  title: string;
+  slug: string;
   /**
-   * Categorize this tag as a general tag or a tool/technology
+   * Hex color code for tag display (e.g., #FF5733)
    */
-  type?: ('general' | 'tool') | null;
+  color?: string | null;
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -292,9 +294,17 @@ export interface Tag {
 export interface Creator {
   id: string;
   name: string;
+  slug: string;
   email?: string | null;
   avatar?: (string | null) | Media;
   bio?: string | null;
+  youtubeChannel?: string | null;
+  website?: string | null;
+  social?: {
+    twitter?: string | null;
+    github?: string | null;
+    linkedin?: string | null;
+  };
   socialLinks?:
     | {
         platform: 'youtube' | 'twitter' | 'instagram' | 'tiktok' | 'website' | 'other';
@@ -470,7 +480,8 @@ export interface VideosSelect<T extends boolean = true> {
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
-  name?: T;
+  title?: T;
+  slug?: T;
   description?: T;
   icon?: T;
   updatedAt?: T;
@@ -481,9 +492,10 @@ export interface CategoriesSelect<T extends boolean = true> {
  * via the `definition` "tags_select".
  */
 export interface TagsSelect<T extends boolean = true> {
-  name?: T;
+  title?: T;
+  slug?: T;
+  color?: T;
   description?: T;
-  type?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -493,9 +505,19 @@ export interface TagsSelect<T extends boolean = true> {
  */
 export interface CreatorsSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   email?: T;
   avatar?: T;
   bio?: T;
+  youtubeChannel?: T;
+  website?: T;
+  social?:
+    | T
+    | {
+        twitter?: T;
+        github?: T;
+        linkedin?: T;
+      };
   socialLinks?:
     | T
     | {

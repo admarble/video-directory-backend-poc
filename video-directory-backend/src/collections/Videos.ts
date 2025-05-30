@@ -1,16 +1,31 @@
 import type { CollectionConfig } from 'payload'
+import { videoAnalyticsHook, trackContentDeletedHook } from '@/hooks/admin-analytics-hooks'
 
 export const Videos: CollectionConfig = {
   slug: 'videos',
   admin: {
     useAsTitle: 'title',
+    // Optimize admin list view
+    defaultColumns: ['title', 'published', 'skillLevel', 'createdAt'],
+    pagination: {
+      defaultLimit: 10, // Reduce default pagination for faster loading
+    },
+    // Optimize the list view query
+    listSearchableFields: ['title', 'description'],
+  },
+  hooks: {
+    afterChange: [videoAnalyticsHook],
+    afterDelete: [trackContentDeletedHook],
   },
   access: {
     // Allow authenticated users or automation users to create videos
     create: ({ req: { user } }) => {
       // Allow automation users with write permission
       if (user?.collection === 'automation-users') {
-        return !!(user?.isActive && (user?.permissions === 'video-readwrite' || user?.permissions === 'video-full'))
+        return !!(
+          user?.isActive &&
+          (user?.permissions === 'video-readwrite' || user?.permissions === 'video-full')
+        )
       }
       // Allow regular authenticated users
       return !!user
@@ -19,7 +34,7 @@ export const Videos: CollectionConfig = {
     read: ({ req: { user } }) => {
       // Allow automation users with any permission
       if (user?.collection === 'automation-users') {
-        return !!(user?.isActive)
+        return !!user?.isActive
       }
       // If regular user is authenticated, allow access to all videos
       if (user) return true
@@ -30,7 +45,10 @@ export const Videos: CollectionConfig = {
     update: ({ req: { user } }) => {
       // Allow automation users with write permission
       if (user?.collection === 'automation-users') {
-        return !!(user?.isActive && (user?.permissions === 'video-readwrite' || user?.permissions === 'video-full'))
+        return !!(
+          user?.isActive &&
+          (user?.permissions === 'video-readwrite' || user?.permissions === 'video-full')
+        )
       }
       // Allow regular authenticated users
       return !!user
@@ -89,18 +107,30 @@ export const Videos: CollectionConfig = {
       type: 'relationship',
       relationTo: 'categories',
       hasMany: true,
+      admin: {
+        // Optimize relationship loading
+        isSortable: false,
+      },
     },
     {
       name: 'tags',
       type: 'relationship',
       relationTo: 'tags',
       hasMany: true,
+      admin: {
+        // Optimize relationship loading
+        isSortable: false,
+      },
     },
     {
       name: 'creator',
       type: 'relationship',
       relationTo: 'creators',
       required: false, // Made optional - will be populated by YouTube API
+      admin: {
+        // Optimize relationship loading
+        isSortable: false,
+      },
     },
     {
       name: 'published',
@@ -135,13 +165,13 @@ export const Videos: CollectionConfig = {
                 .replace(/\s+/g, '-')
                 .replace(/-+/g, '-')
                 .replace(/^-+|-+$/g, '')
-                .trim();
-              
-              return slug || `video-${Date.now()}`;
+                .trim()
+
+              return slug || `video-${Date.now()}`
             }
-            
+
             // Return existing value or generate fallback
-            return value || `video-${Date.now()}`;
+            return value || `video-${Date.now()}`
           },
         ],
       },

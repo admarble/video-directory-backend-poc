@@ -1,4 +1,3 @@
-// storage-adapter-import-placeholder
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
@@ -43,6 +42,25 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    // Add custom admin components
+    components: {
+      views: {
+        dashboard: {
+          Component: './components/admin/AdminDashboard#AdminDashboard',
+        },
+        analytics: {
+          Component: './components/admin/AnalyticsDashboard#AnalyticsDashboard',
+          path: '/analytics',
+        },
+      },
+    },
+    meta: {
+      titleSuffix: '- Video Directory',
+    },
+    // Disable live preview in development for faster loading
+    livePreview: {
+      url: () => '',
+    },
   },
   collections: [Users, AutomationUsers, Media, Videos, Categories, Tags, Creators],
   globals: [SiteSettings],
@@ -72,6 +90,9 @@ export default buildConfig({
       secure: process.env.SMTP_SECURE === 'true',
     },
     // Disable transport verification in development
-    skipVerify: process.env.NODE_ENV === 'development' || !process.env.SMTP_HOST || process.env.SMTP_HOST.includes('example.com'),
+    skipVerify:
+      process.env.NODE_ENV === 'development' ||
+      !process.env.SMTP_HOST ||
+      process.env.SMTP_HOST.includes('example.com'),
   }),
 })

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayloadClient } from '@/getPayload'
+import type { Where } from 'payload'
 import type { SearchFilters } from '@/types/api'
 
 export async function GET(request: NextRequest) {
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build the search query
-    const searchQuery: any = {
+    const searchQuery: Where = {
       published: { equals: filters.published }
     }
 
@@ -50,9 +51,10 @@ export async function GET(request: NextRequest) {
       searchQuery.skillLevel = { in: filters.skillLevel }
     }
     if (filters.duration?.min || filters.duration?.max) {
-      searchQuery.duration = {}
-      if (filters.duration.min) searchQuery.duration.greater_than_equal = filters.duration.min
-      if (filters.duration.max) searchQuery.duration.less_than_equal = filters.duration.max
+      const durationQuery: Record<string, number> = {}
+      if (filters.duration.min) durationQuery.greater_than_equal = filters.duration.min
+      if (filters.duration.max) durationQuery.less_than_equal = filters.duration.max
+      searchQuery.duration = durationQuery
     }
 
     // Execute search

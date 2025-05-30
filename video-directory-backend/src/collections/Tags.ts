@@ -1,36 +1,41 @@
 import type { CollectionConfig } from 'payload'
+import { tagAnalyticsHook, trackContentDeletedHook } from '@/hooks/admin-analytics-hooks'
 
 export const Tags: CollectionConfig = {
   slug: 'tags',
   admin: {
-    useAsTitle: 'name',
+    useAsTitle: 'title',
+  },
+  hooks: {
+    afterChange: [tagAnalyticsHook],
+    afterDelete: [trackContentDeletedHook],
   },
   access: {
     read: () => true,
   },
   fields: [
     {
-      name: 'name',
+      name: 'title',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+    },
+    {
+      name: 'color',
+      type: 'text',
+      admin: {
+        description: 'Hex color code for tag display (e.g., #FF5733)',
+      },
     },
     {
       name: 'description',
       type: 'textarea',
     },
-    {
-      name: 'type',
-      type: 'select',
-      label: 'Tag Type',
-      options: [
-        { label: 'General Tag', value: 'general' },
-        { label: 'Tool/Technology', value: 'tool' },
-      ],
-      defaultValue: 'general',
-      admin: {
-        description: 'Categorize this tag as a general tag or a tool/technology',
-      },
-    },
   ],
   timestamps: true,
-} 
+}

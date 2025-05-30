@@ -1,18 +1,29 @@
 import type { CollectionConfig } from 'payload'
+import { categoryAnalyticsHook, trackContentDeletedHook } from '@/hooks/admin-analytics-hooks'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
   admin: {
-    useAsTitle: 'name',
+    useAsTitle: 'title',
+  },
+  hooks: {
+    afterChange: [categoryAnalyticsHook],
+    afterDelete: [trackContentDeletedHook],
   },
   access: {
     read: () => true,
   },
   fields: [
     {
-      name: 'name',
+      name: 'title',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
     },
     {
       name: 'description',
@@ -27,4 +38,4 @@ export const Categories: CollectionConfig = {
     // Can be added back in future version with proper depth controls
   ],
   timestamps: true,
-} 
+}

@@ -2,35 +2,43 @@ import { NextResponse } from 'next/server'
 
 const CORE_CATEGORIES = [
   {
-    name: 'Business Strategy',
+    title: 'Business Strategy',
+    slug: 'business-strategy',
     description: 'Learn about idea validation, business models, pricing strategies, and revenue optimization. Perfect for indie hackers starting their entrepreneurial journey.',
   },
   {
-    name: 'AI & Automation',
+    title: 'AI & Automation',
+    slug: 'ai-automation',
     description: 'Discover AI coding tools like Cursor and Copilot, workflow automation, and AI-powered business tools to boost your productivity.',
   },
   {
-    name: 'No-Code/Low-Code',
+    title: 'No-Code/Low-Code',
+    slug: 'no-code-low-code',
     description: 'Master tools like Supabase, Vercel, Webflow, and Zapier to build powerful applications without extensive coding.',
   },
   {
-    name: 'Marketing & Growth',
+    title: 'Marketing & Growth',
+    slug: 'marketing-growth',
     description: 'Explore SEO strategies, content marketing, social media tactics, paid advertising, and viral marketing techniques.',
   },
   {
-    name: 'Web Development',
+    title: 'Web Development',
+    slug: 'web-development',
     description: 'Frontend and backend tutorials covering popular frameworks like React, Next.js, Node.js, and modern development practices.',
   },
   {
-    name: 'SaaS Building',
+    title: 'SaaS Building',
+    slug: 'saas-building',
     description: 'Learn how to build SaaS products, implement subscription models, optimize user onboarding, and reduce churn.',
   },
   {
-    name: 'Product Management',
+    title: 'Product Management',
+    slug: 'product-management',
     description: 'Master user research, UI/UX design principles, product roadmaps, and feature prioritization strategies.',
   },
   {
-    name: 'Analytics & Data',
+    title: 'Analytics & Data',
+    slug: 'analytics-data',
     description: 'Understand tracking tools, key metrics, data-driven decision making, and conversion optimization techniques.',
   },
 ]
@@ -59,16 +67,16 @@ export async function POST() {
         const existingCategories = await payload.find({
           collection: 'categories',
           where: {
-            name: {
-              equals: categoryData.name,
+            title: {
+              equals: categoryData.title,
             },
           },
           limit: 1,
         })
 
         if (existingCategories.docs.length > 0) {
-          console.log(`✓ Category "${categoryData.name}" already exists, skipping...`)
-          results.existing.push(categoryData.name)
+          console.log(`✓ Category "${categoryData.title}" already exists, skipping...`)
+          results.existing.push(categoryData.title)
           continue
         }
 
@@ -78,15 +86,15 @@ export async function POST() {
           data: categoryData,
         })
 
-        console.log(`✓ Created category: "${categoryData.name}" (ID: ${newCategory.id})`)
+        console.log(`✓ Created category: "${categoryData.title}" (ID: ${newCategory.id})`)
         results.created.push({
-          name: categoryData.name,
-          id: newCategory.id,
+          name: categoryData.title,
+          id: String(newCategory.id),
         })
       } catch (error) {
-        console.error(`Error creating category "${categoryData.name}":`, error)
+        console.error(`Error creating category "${categoryData.title}":`, error)
         results.errors.push({
-          category: categoryData.name,
+          category: categoryData.title,
           error: error instanceof Error ? error.message : String(error),
         })
       }
@@ -95,7 +103,7 @@ export async function POST() {
     // Get all categories to show current state
     const allCategories = await payload.find({
       collection: 'categories',
-      sort: 'name',
+      sort: 'title',
     })
 
     const response = {
@@ -109,9 +117,9 @@ export async function POST() {
       },
       details: results,
       allCategories: allCategories.docs.map(cat => ({
-        id: cat.id,
-        name: cat.name,
-        description: cat.description,
+        id: String(cat.id),
+        name: cat.title,
+        description: cat.description || '',
       })),
     }
 
@@ -137,15 +145,15 @@ export async function GET() {
     
     const allCategories = await payload.find({
       collection: 'categories',
-      sort: 'name',
+      sort: 'title',
     })
 
     return NextResponse.json({
       success: true,
       categories: allCategories.docs.map(cat => ({
-        id: cat.id,
-        name: cat.name,
-        description: cat.description,
+        id: String(cat.id),
+        name: cat.title,
+        description: cat.description || '',
       })),
       total: allCategories.docs.length,
     })

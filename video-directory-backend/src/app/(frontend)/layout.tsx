@@ -2,8 +2,8 @@ import React from 'react'
 import './styles.css'
 
 export const metadata = {
-  description: 'A blank template using Payload in a Next.js app.',
-  title: 'Payload Blank Template',
+  description: 'A video directory application with AI-powered recommendations',
+  title: 'Video Directory - Discover Amazing Content',
 }
 
 export default async function FrontendLayout(props: { children: React.ReactNode }) {

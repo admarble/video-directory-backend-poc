@@ -1,32 +1,41 @@
 import React from 'react'
 import Link from 'next/link'
+import './styles.css'
 
 export default function Home() {
   return (
-    <div style={{ 
-      padding: '40px', 
-      maxWidth: '800px', 
-      margin: '0 auto',
-      fontFamily: 'system-ui, sans-serif'
-    }}>
-      <h1>Video Directory Backend</h1>
-      <p>Welcome to your Video Directory backend powered by Payload CMS.</p>
+    <div className="video-directory-container">
+      <h1 className="video-directory-title">
+        Video Directory Backend
+      </h1>
       
-      <div style={{ marginTop: '20px' }}>
-        <Link 
-          href="/admin" 
-          style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            background: '#333',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '4px',
-            fontWeight: 'bold'
-          }}
+      <p className="video-directory-subtitle">
+        Content Management System & API
+      </p>
+
+      <div className="video-directory-links">
+        <Link
+          href="/admin"
+          className="video-directory-link video-directory-link-primary"
         >
-          Access Admin Panel
+          Admin Panel
         </Link>
+        
+        <Link
+          href="/api"
+          className="video-directory-link video-directory-link-secondary"
+        >
+          API Endpoints
+        </Link>
+      </div>
+
+      <div className="video-directory-info-box">
+        <h3 className="video-directory-info-title">API Information</h3>
+        <div className="video-directory-info-content">
+          <p><strong>Base URL:</strong> <code>http://localhost:3001/api</code></p>
+          <p><strong>Admin Panel:</strong> <code>http://localhost:3001/admin</code></p>
+          <p><strong>Documentation:</strong> Available in admin panel</p>
+        </div>
       </div>
     </div>
   )

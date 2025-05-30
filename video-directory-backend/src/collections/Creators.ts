@@ -1,9 +1,14 @@
 import type { CollectionConfig } from 'payload'
+import { creatorAnalyticsHook, trackContentDeletedHook } from '@/hooks/admin-analytics-hooks'
 
 export const Creators: CollectionConfig = {
   slug: 'creators',
   admin: {
     useAsTitle: 'name',
+  },
+  hooks: {
+    afterChange: [creatorAnalyticsHook],
+    afterDelete: [trackContentDeletedHook],
   },
   access: {
     read: () => true,
@@ -13,6 +18,12 @@ export const Creators: CollectionConfig = {
       name: 'name',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
     },
     {
       name: 'email',
@@ -26,6 +37,33 @@ export const Creators: CollectionConfig = {
     {
       name: 'bio',
       type: 'textarea',
+    },
+    {
+      name: 'youtubeChannel',
+      type: 'text',
+      label: 'YouTube Channel URL',
+    },
+    {
+      name: 'website',
+      type: 'text',
+    },
+    {
+      name: 'social',
+      type: 'group',
+      fields: [
+        {
+          name: 'twitter',
+          type: 'text',
+        },
+        {
+          name: 'github',
+          type: 'text',
+        },
+        {
+          name: 'linkedin',
+          type: 'text',
+        },
+      ],
     },
     {
       name: 'socialLinks',
@@ -53,4 +91,4 @@ export const Creators: CollectionConfig = {
     },
   ],
   timestamps: true,
-} 
+}

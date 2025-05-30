@@ -181,7 +181,7 @@ async function createTagsInDatabase(tagSuggestions: { name: string; type: 'tool'
       const existingTags = await payload.find({
         collection: 'tags',
         where: {
-          name: { equals: suggestion.name }
+          title: { equals: suggestion.name }
         },
         limit: 1
       });
@@ -193,8 +193,8 @@ async function createTagsInDatabase(tagSuggestions: { name: string; type: 'tool'
         const newTag = await payload.create({
           collection: 'tags',
           data: {
-            name: suggestion.name,
-            type: suggestion.type,
+            title: suggestion.name,
+            slug: suggestion.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
             description: `Auto-generated ${suggestion.type} tag from AI analysis`
           }
         });
@@ -250,7 +250,7 @@ export async function POST(request: Request) {
         });
         
         const currentTagIds = Array.isArray(currentVideo.tags) ? currentVideo.tags.map(tag => 
-          typeof tag === 'string' ? tag : tag.id
+          typeof tag === 'string' ? tag : String(tag.id)
         ) : [];
         
         const mergedTagIds = [...new Set([...currentTagIds, ...createdTagIds])];

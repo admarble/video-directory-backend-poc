@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       select: { views: true }
     })
     
-    const totalViews = viewsResult.docs.reduce((sum: number, video: any) => sum + (video.views || 0), 0)
+    const totalViews = viewsResult.docs.reduce((sum: number, video) => sum + (video.views || 0), 0)
 
     // Get top categories
     const topCategories = await payload.find({
@@ -87,11 +87,11 @@ export async function GET(request: NextRequest) {
       select: { skillLevel: true }
     })
 
-    const skillDistribution: SkillDistribution = skillLevels.docs.reduce((acc: SkillDistribution, video: any) => {
+    const skillDistribution: SkillDistribution = skillLevels.docs.reduce((acc: SkillDistribution, video) => {
       const level = video.skillLevel || 'beginner'
       acc[level] = (acc[level] || 0) + 1
       return acc
-    }, {})
+    }, {} as SkillDistribution)
 
     // Get duration statistics
     const durations = await payload.find({
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
       select: { duration: true }
     })
 
-    const durationStats: DurationStats = durations.docs.reduce((acc: DurationStats, video: any) => {
+    const durationStats: DurationStats = durations.docs.reduce((acc: DurationStats, video) => {
       const duration = video.duration || 0
       if (duration < 300) acc.short++ // < 5 min
       else if (duration < 900) acc.medium++ // 5-15 min
@@ -136,25 +136,25 @@ export async function GET(request: NextRequest) {
       },
       topCategories: topCategories.docs.map((cat: Category): CategoryWithCount => ({
         id: cat.id,
-        name: cat.name,
+        name: cat.title, // Categories use 'title' field not 'name'
         videoCount: 0 // This would need a separate query to count videos per category
       })),
-      popularVideos: popularVideos.docs.map((video: any): PopularVideo => ({
+      popularVideos: popularVideos.docs.map((video): PopularVideo => ({
         id: video.id,
         title: video.title,
         views: video.views || 0,
         categories: Array.isArray(video.categories) 
-          ? video.categories.map((cat: any) => typeof cat === 'string' ? cat : cat.name) 
+          ? video.categories.map((cat) => typeof cat === 'string' ? cat : cat.title) 
           : [],
         creator: typeof video.creator === 'string' ? 'Unknown' : video.creator?.name || 'Unknown',
-        thumbnail: typeof video.thumbnail === 'string' ? undefined : video.thumbnail?.url
+        thumbnail: typeof video.thumbnail === 'string' ? undefined : video.thumbnail?.url || undefined
       })),
-      recentActivity: recentVideos.docs.map((video: any): RecentActivity => ({
+      recentActivity: recentVideos.docs.map((video): RecentActivity => ({
         id: video.id,
         title: video.title,
         createdAt: video.createdAt,
         categories: Array.isArray(video.categories) 
-          ? video.categories.map((cat: any) => typeof cat === 'string' ? cat : cat.name) 
+          ? video.categories.map((cat) => typeof cat === 'string' ? cat : cat.title) 
           : [],
         creator: typeof video.creator === 'string' ? 'Unknown' : video.creator?.name || 'Unknown'
       })),

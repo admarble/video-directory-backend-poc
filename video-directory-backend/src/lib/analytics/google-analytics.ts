@@ -1,49 +1,32 @@
-import type { GAEvent } from '@/types/api'
+// Google Analytics stub functions
+// These can be implemented later if you want Google Analytics
 
 declare global {
   interface Window {
-    gtag: (...args: unknown[]) => void
+    gtag: (command: string, ...args: unknown[]) => void;
   }
 }
 
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
-
-// Track page views
-export function trackPageView(url: string, title?: string) {
+export function trackPageView(url: string) {
+  // Log internally for debugging
+  console.log('Page view tracked:', { url, timestamp: new Date() });
+  
+  // If Google Analytics is loaded, track the page view
   if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('config', GA_MEASUREMENT_ID, {
+    window.gtag('config', process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID, {
       page_path: url,
-      page_title: title,
-    })
+    });
   }
 }
 
-// Track custom events
-export function trackEvent(eventName: string, parameters?: GAEvent) {
+export function trackEvent(action: string, category: string, label?: string, value?: number) {
+  console.log('Event tracked:', { action, category, label, value, timestamp: new Date() });
+  
   if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', eventName, {
-      event_category: 'engagement',
-      event_label: parameters?.event_label,
-      value: parameters?.value,
-      ...parameters,
-    })
+    window.gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value,
+    });
   }
-}
-
-// Track video interactions
-export function trackVideoEvent(action: string, videoId: string, videoTitle?: string) {
-  trackEvent('video_interaction', {
-    event_category: 'video',
-    event_label: videoTitle,
-    video_id: videoId,
-    action: action,
-  })
-}
-
-// Track search events
-export function trackSearchEvent(searchTerm: string, resultsCount: number) {
-  trackEvent('search', {
-    search_term: searchTerm,
-    results_count: resultsCount,
-  })
 }

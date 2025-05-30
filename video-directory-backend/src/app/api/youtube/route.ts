@@ -116,7 +116,7 @@ async function findOrCreateCategories(categoryNames: string[]): Promise<string[]
       const existingCategories = await payload.find({
         collection: 'categories',
         where: {
-          name: {
+          title: {
             equals: cleanCategoryName,
           },
         },
@@ -133,7 +133,8 @@ async function findOrCreateCategories(categoryNames: string[]): Promise<string[]
         const newCategory = await payload.create({
           collection: 'categories',
           data: {
-            name: cleanCategoryName,
+            title: cleanCategoryName,
+            slug: cleanCategoryName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
             description: `Automatically created from YouTube video categorization`,
           },
         });
@@ -238,6 +239,7 @@ async function findOrCreateCreator(channelId: string, channelTitle: string): Pro
         collection: 'creators',
         data: {
           name: cleanChannelTitle,
+          slug: cleanChannelTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
           bio: `YouTube creator - automatically imported from YouTube API`,
           socialLinks: [
             {
@@ -271,7 +273,7 @@ async function findOrCreateTags(tags: string[]): Promise<string[]> {
       const existingTags = await payload.find({
         collection: 'tags',
         where: {
-          name: {
+          title: {
             equals: tagName,
           },
         },
@@ -286,7 +288,8 @@ async function findOrCreateTags(tags: string[]): Promise<string[]> {
         const newTag = await payload.create({
           collection: 'tags',
           data: {
-            name: tagName,
+            title: tagName,
+            slug: tagName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
             description: `Automatically created from YouTube video tags`,
           },
         });

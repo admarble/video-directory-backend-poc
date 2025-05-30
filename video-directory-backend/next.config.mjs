@@ -10,14 +10,12 @@ const nextConfig = {
   
   // Simplified webpack configuration for better performance
   webpack: (config, { isServer, dev }) => {
-    // Only add essential optimizations
-    if (!isServer && !dev) {
-      // Production client-side optimizations only
+    // Only add essential optimizations in non-Turbopack mode
+    if (!process.env.TURBOPACK && !isServer && !dev) {
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
         cacheGroups: {
           ...config.optimization.splitChunks.cacheGroups,
-          // Simple vendor chunk for large libraries
           vendor: {
             test: /[\\/]node_modules[\\/](date-fns|lodash|react|react-dom)[\\/]/,
             chunks: 'all',
@@ -28,28 +26,34 @@ const nextConfig = {
       }
     }
     
-    // Let Next.js and PayloadCMS handle module resolution naturally
     return config
   },
   
   // Use Next.js 15.3.0 built-in optimizations
   experimental: {
-    // Let Next.js optimize packages automatically
     optimizePackageImports: ['date-fns', 'lodash'],
   },
   
-  // Turbopack configuration (moved from experimental.turbo)
-  turbo: {
+  // Turbopack configuration (stable in Next.js 15.3.0)
+  turbopack: {
     rules: {
       '*.svg': {
         loaders: ['@svgr/webpack'],
         as: '*.js',
       },
     },
+    resolveExtensions: [
+      '.mdx',
+      '.tsx',
+      '.ts',
+      '.jsx',
+      '.js',
+      '.mjs',
+      '.json',
+    ],
   },
 }
 
 export default withPayload(nextConfig, {
-  // Let PayloadCMS handle its own bundling optimizations
   configPath: './src/payload.config.ts',
 })

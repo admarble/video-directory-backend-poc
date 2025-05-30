@@ -39,7 +39,7 @@ export function transformVideo(video: Video): TransformedVideo {
       .map((cat) => {
         if (typeof cat === 'object' && cat !== null) {
           const category = cat as Category
-          return category.name
+          return category.title
         }
         return null
       })
@@ -53,7 +53,8 @@ export function transformVideo(video: Video): TransformedVideo {
       .map((tag) => {
         if (typeof tag === 'object' && tag !== null) {
           const tagObj = tag as Tag
-          return tagObj.type === 'tool' ? tagObj.name : null
+          // Since Tags collection doesn't have 'type' field, just return all tag titles
+          return tagObj.title
         }
         return null
       })
